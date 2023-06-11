@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from rest_framework import status
+from rest_framework.authtoken.models import Token
 from rest_framework.generics import CreateAPIView, RetrieveUpdateAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -44,9 +45,15 @@ def confirm_email_view(request):
         token = EmailConfirmationToken.objects.get(pk=token_id)
         user = token.customer
         user.is_active = True
+        Token.objects.create(user=user)
         user.save()
         data = {'is_active': True}
         return render(request, template_name='confirm_email_view.html', context=data)
     except EmailConfirmationToken.DoesNotExist:
         data = {'is_active': False}
         return render(request, template_name='confirm_email_view.html', context=data)
+
+
+
+
+

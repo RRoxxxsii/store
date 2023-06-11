@@ -41,6 +41,7 @@ INSTALLED_APPS = [
 
     # Third party packages
     'rest_framework',
+    'rest_framework.authtoken',
 
     # Django applications
     'account',
@@ -140,4 +141,12 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 AUTH_USER_MODEL = "account.Customer"
 
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+    ]
+}
 

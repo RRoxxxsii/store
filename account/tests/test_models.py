@@ -59,16 +59,3 @@ class TestCreateUser(APITestCase):
             assert False
 
 
-class TestCustomerProfile(APITestCase):
-
-    def setUp(self) -> None:
-        self.user = Customer.objects.create_user(user_name='testuser1', email='testuser3@gmail.com',
-                                                 password='somepswrd1',
-                                                 mobile='88005553535')
-        self.customer_profile = self.user.customer_profile
-
-    def test_personal_profile_automatically_created_after_customer_created(self):
-        self.assertEqual(self.customer_profile.customer.user_name, self.user.user_name)
-
-    def test_image_default(self):
-        self.assertEqual(self.customer_profile.image_url, 'media/images.png')

@@ -118,13 +118,14 @@ class TestMakeAccountActivateByEmail(APITestCase):
 class TestPersonalProfile(APITestCase):
 
     def setUp(self) -> None:
-        self.user = Customer.objects.create_user(user_name='testuser1', email='testuser1@gmail.com', password='somepswrd1',
-                                                 mobile='88005553535')
+        self.user = Customer.objects.create_user(user_name='testuser1', email='testuser1@gmail.com',
+                                                 password='somepswrd1', mobile='88005553535')
+        CustomerProfile.objects.create(customer=self.user)
         self.url = reverse('profile')
 
     def test_get_personal_profile_page_when_not_authorized(self):
         response = self.client.get(self.url)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_get_personal_profile_when_authorized(self):
         self.client.force_authenticate(user=self.user)
@@ -138,4 +139,71 @@ class TestPersonalProfile(APITestCase):
         self.assertEqual(self.user.customer_profile.city, 'Иркутск')
 
 
+class TestTokenAuthenticationSystem(APITestCase):
+
+    def setUp(self) -> None:
+        self.url_register = reverse('register')
+        self.url_personal_profile = reverse('profile')
+        self.url_token_auth = reverse('api_token_auth')
+
+    def test_obtain_token_when_email_is_not_confirmed(self):
+        """
+        When user's account is created, but his email is_active=False,
+        he is not supposed to obtain token. Only when he makes his account active,
+        he obtain it.
+        """
+        response = self.client.post(self.url_register, data={'user_name': 'testuser1', 'email': 'testuser1@gmail.com',
+                                    'password': 'pWrDLoL1#3!', 'password2': 'pWrDLoL1#3!'})
+        user = Customer.objects.get(user_name='testuser1')
+
+    def test_login_with_token_when_email_is_not_confirmed(self):
+        """
+        Here user is trying to login via token, but his email is not confirmed.
+        He is not supposed to login.
+        """
+        response = self.client.post(self.url_register, data={'user_name': 'testuser1', 'email': 'testuser1@gmail.com',
+                                    'password': 'pWrDLoL1#3!', 'password2': 'pWrDLoL1#3!'})
+        user = Customer.objects.get(user_name='testuser1')
+        response = self.client.post(self.url_token_auth, data={'username': 'testuser1', 'password': 'pWrDLoL1#3!'})
+        token = (eval(response.content.decode()).get('token'))
+
+        headers = {'content-type': 'application/json', 'Authorization': f'Token {token}'}
+        response = self.client.get(self.url_personal_profile, headers=headers)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_login_with_token_when_email_is_confirmed(self):
+        """
+        Here user is trying to login via token, AND his email IS confirmed.
+        He is supposed to login.
+        """
+        response = self.client.post(self.url_register, data={'user_name': 'testuser1', 'email': 'testuser1@gmail.com',
+                                    'password': 'pWrDLoL1#3!', 'password2': 'pWrDLoL1#3!'})
+        user = Customer.objects.get(user_name='testuser1')
+        email_msg = mail.outbox[0]
+        link = re.search(r'http://.+', email_msg.body).group()
+        response = self.client.get(link, follow=True)
+        user.refresh_from_db()
+
+        response = self.client.post(self.url_token_auth, data={'username': 'testuser1', 'password': 'pWrDLoL1#3!'})
+        token = (eval(response.content.decode()).get('token'))
+
+        headers = {'content-type': 'application/json', 'Authorization': f'Token {token}'}
+        response = self.client.get(self.url_personal_profile, headers=headers)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+
+class TestCustomerProfileCreated(APITestCase):
+
+    def setUp(self) -> None:
+        self.client.post(reverse('register'), data={'user_name': 'testuser1', 'email':'testuser3@gmail.com',
+                         'password': 'pWrDLoL1#3!', 'password2': 'pWrDLoL1#3!'})
+
+        self.user = Customer.objects.get(user_name='testuser1')
+        self.customer_profile = self.user.customer_profile
+
+    def test_personal_profile_automatically_created_after_customer_created(self):
+        self.assertEqual(self.customer_profile.customer.user_name, self.user.user_name)
+
+    def test_image_default(self):
+        self.assertEqual(self.customer_profile.image_url, 'media/images.png')
 
