@@ -1,9 +1,3 @@
-from django.contrib.auth.tokens import default_token_generator
-from django.contrib.sites.shortcuts import get_current_site
-from django.core.mail import send_mail
-from django.template.loader import render_to_string
-from django.utils.encoding import force_bytes, force_str
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import renderer_classes, api_view
@@ -11,10 +5,9 @@ from rest_framework.generics import CreateAPIView, RetrieveUpdateAPIView, Update
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
-from rest_framework.views import APIView
 
-from account.logic import UpdateEmail
-from account.models import EmailConfirmationToken, Customer
+from account.logic import UpdateEmail, Register
+from account.models import EmailConfirmationToken, Customer, CustomerProfile
 from account.permissions import IsNotAuthenticated
 from account.serializers import RegisterSerializer, PersonalProfileSerializer, ChangeEmailSerializer
 from account.utils import send_confirmation_email
@@ -37,11 +30,12 @@ class RegistrationAPIVIew(CreateAPIView):
 
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
-        data = {}
         if serializer.is_valid():
-            serializer.save()
-            data['response'] = True
-
+            instance = Register(serializer)
+            user = instance.create_user()
+            instance.send_email_message('register_email.txt', user)
+            user.set_password(serializer.data.get('password'))
+            data = {'message': 'На вашу почту пришло письмо, перейдите по ссылке в нем чтобы подтвердить аккаунт'}
             return Response(data, status=status.HTTP_201_CREATED)
         else:
             data = serializer.errors
@@ -66,17 +60,17 @@ def confirm_email_view(request):
 
 
 class ChangeEmailAPIView(UpdateAPIView):
-    permission_classes = [IsAuthenticated, ]
+    permission_classes = [IsAuthenticated]
     serializer_class = ChangeEmailSerializer
 
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
-            if UpdateEmail.email_unique(serializer):
-                UpdateEmail.send_email_message('change_email.txt', user=request.user)
-                UpdateEmail.set_email_to_session(serializer, request.session)
-                return Response({'message': 'Запрос на новую почту отправлен, перейдите по ссылке чтобы подтвердить.'},
-                                status=200)
+            instance = UpdateEmail(serializer=serializer)
+            if instance.email_unique():
+                instance.send_email_message('change_email.txt', user=request.user)
+                instance.set_email_to_session(request.session)
+                return Response({'message': 'Запрос на новую почту отправлен, перейдите по ссылке чтобы подтвердить.'}, status=200)
             return Response({'error': 'Пользователь с такой электронной почтой уже существует.'}, status=400)
 
         return Response(serializer.errors, status=400)
