@@ -1,6 +1,5 @@
 from rest_framework.exceptions import ValidationError
 from rest_framework import serializers
-from django.core.signals import Signal
 
 from .models import CustomerProfile, Customer, EmailConfirmationToken
 from .utils import send_confirmation_email
@@ -33,7 +32,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         )
         user.set_password(validated_data['password'])
         token = EmailConfirmationToken.objects.create(customer=user)
-        send_confirmation_email(email=user.email, token_id=token.pk, user_id=user.pk)
+        send_confirmation_email('register_email.txt', email=user.email, token_id=token.pk, user_id=user.pk)
 
         CustomerProfile.objects.create(customer=user)
         user.save()
@@ -55,6 +54,8 @@ class PersonalProfileSerializer(serializers.ModelSerializer):
         fields = ('city', 'customer', 'image_url')
 
 
-class ConfirmationResponseSerializer(serializers.Serializer):
-    message = serializers.CharField()
+class ChangeEmailSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+
 

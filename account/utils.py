@@ -2,12 +2,12 @@ from django.core.mail import send_mail
 from django.template.loader import get_template
 
 
-def send_confirmation_email(email, token_id, user_id):
+def send_confirmation_email(template_name: str, email: str, token_id: int, user_id: int):
     data = {
         'token_id': str(token_id),
         'user_id': str(user_id)
     }
-    message = get_template('register_email.txt').render(data)
+    message = get_template(template_name).render(data)
     send_mail(subject='Пожалуйста, подтвердите почту',
               message=message,
               from_email='admin@ourweb.com',

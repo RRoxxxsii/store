@@ -1,0 +1,3 @@
+Пожалуйста, подтвердите электронную новую почту, для этого перейдите по этой ссылке:
+
+http://127.0.0.1:8000/api/v1/account/confirm-change-email/?token_id={{token_id}}&user_id={{user_id}}
