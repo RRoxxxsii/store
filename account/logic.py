@@ -17,27 +17,25 @@ class EmailConfirmMixin:
         send_confirmation_email(template_name, email=user.email, token_id=token.pk, user_id=user.pk)
 
 
-class UpdateEmail(EmailConfirmMixin):
+class UpdateFieldMixin(EmailConfirmMixin):
+    field_to_update = ''
 
     def unique(self):
-        email = self.serializer.validated_data['email']
-        if Customer.objects.filter(email=email).exists():
+        field_to_update = self.serializer.validated_data[self.field_to_update]
+        if Customer.objects.filter(email=field_to_update).exists():
             return False
         return True
 
     def set_to_session(self, session):
-        session['email'] = self.serializer.validated_data['email']
+        session[self.field_to_update] = self.serializer.validated_data[self.field_to_update]
 
 
-class UpdateUserName(EmailConfirmMixin):
-    def unique(self):
-        user_name = self.serializer.validated_data['user_name']
-        if Customer.objects.filter(user_name=user_name).exists():
-            return False
-        return True
+class UpdateEmail(UpdateFieldMixin):
+    field_to_update = 'email'
 
-    def set_to_session(self, session):
-        session['user_name'] = self.serializer.validated_data['user_name']
+
+class UpdateUserName(UpdateEmail):
+    field_to_update = 'user_name'
 
 
 class Register(EmailConfirmMixin):
@@ -63,6 +61,10 @@ class EmailConfirmationView(APIView):
 
     @abstractmethod
     def get_confirmation_logic(self, user: Customer, request: Request):
+        """
+        Supposed to pop an item from session and assign it to user object in order to change a field.
+        The field may be UserObj.email/UserObj.user_name
+        """
         pass
 
     def get(self, request: Request):
