@@ -6,7 +6,6 @@ from rest_framework.views import APIView
 
 from account.models import Customer, EmailConfirmationToken, CustomerProfile
 from account.utils import send_confirmation_email
-from account.models import Customer
 
 
 class EmailConfirmMixin:
@@ -20,25 +19,25 @@ class EmailConfirmMixin:
 
 class UpdateEmail(EmailConfirmMixin):
 
-    def email_unique(self):
-        new_email = self.serializer.validated_data['email']
-        if Customer.objects.filter(email=new_email).exists():
+    def unique(self):
+        email = self.serializer.validated_data['email']
+        if Customer.objects.filter(email=email).exists():
             return False
         return True
 
-    def set_email_to_session(self, session):
-        session['new_email'] = self.serializer.validated_data['email']
+    def set_to_session(self, session):
+        session['email'] = self.serializer.validated_data['email']
 
 
 class UpdateUserName(EmailConfirmMixin):
-    def username_unique(self):
+    def unique(self):
         user_name = self.serializer.validated_data['user_name']
         if Customer.objects.filter(user_name=user_name).exists():
             return False
         return True
 
-    def set_username_to_session(self, session):
-        session['new_username'] = self.serializer.validated_data['user_name']
+    def set_to_session(self, session):
+        session['user_name'] = self.serializer.validated_data['user_name']
 
 
 class Register(EmailConfirmMixin):

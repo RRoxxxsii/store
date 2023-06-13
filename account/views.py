@@ -38,39 +38,41 @@ class RegistrationAPIVIew(CreateAPIView):
             return Response(data)
 
 
-class ChangeEmailAPIView(UpdateAPIView):
+class ChangeFieldAPIViewMixin(UpdateAPIView):
     permission_classes = [IsAuthenticated]
-    serializer_class = ChangeEmailSerializer
+    serializer_class = ''
+    update_class = ''
+    template_name = ''
+    success_msg = 'Запрос на новую почту отправлен, перейдите по ссылке чтобы подтвердить.'
+    error_msg = ''
 
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
-            instance = UpdateEmail(serializer=serializer)
-            if instance.email_unique():
+            instance = self.update_class(serializer=serializer)
+            if instance.unique():
                 instance.send_email_message('change_email.txt', user=request.user)
-                instance.set_email_to_session(request.session)
+                instance.set_to_session(request.session)
                 return Response({'message': 'Запрос на новую почту отправлен, перейдите по ссылке чтобы подтвердить.'}, status=200)
             return Response({'error': 'Пользователь с такой электронной почтой уже существует.'}, status=400)
 
         return Response(serializer.errors, status=400)
 
 
-class ChangeUserNameAPIView(UpdateAPIView):
+class ChangeEmailAPIView(ChangeFieldAPIViewMixin, UpdateAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ChangeEmailSerializer
+    update_class = UpdateEmail
+    template_name = 'change_email.txt'
+    error_msg = 'Пользователь с такой электронной почтой уже существует.'
+
+
+class ChangeUserNameAPIView(ChangeFieldAPIViewMixin, UpdateAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = ChangeUserNameSerializer
-
-    def post(self, request):
-        serializer = self.serializer_class(data=request.data)
-        if serializer.is_valid():
-            instance = UpdateUserName(serializer=serializer)
-            if instance.username_unique():
-                instance.send_email_message('change_username.txt', user=request.user)
-                instance.set_username_to_session(request.session)
-                return Response({'message': 'Запрос на новую почту отправлен, перейдите по ссылке чтобы подтвердить.'},
-                                status=200)
-            return Response({'error': 'Пользователь с такой именем уже существует.'}, status=400)
-
-        return Response(serializer.errors, status=400)
+    template_name = 'change_username.txt'
+    update_class = UpdateUserName
+    error_msg = 'Пользователь с такой электронной почтой уже существует.'
 
 
 class ConfirmEmailView(EmailConfirmationView):
@@ -82,28 +84,31 @@ class ConfirmEmailView(EmailConfirmationView):
         Token.objects.create(user=user)
 
 
-class ConfirmEmailChangeView(EmailConfirmationView):
+class ConfirmEmailChangeViewMixin(EmailConfirmationView):
+    success_message = ''
+    error_message = ''
+    # field of user model that is supposed to be changed
+    new_data_field = ''
+
+    def get_confirmation_logic(self, user, request):
+        try:
+            self.new_data_field = request.session.pop(self.new_data_field)
+            user.email = self.new_data_field
+        except KeyError:
+            pass
+
+
+class ConfirmEmailChangeView(ConfirmEmailChangeViewMixin, EmailConfirmationView):
     success_message = 'Электронная почта успешно обновлена.'
     error_message = 'Срок годности токена истек, запросите новый.'
-
-    def get_confirmation_logic(self, user, request):
-        try:
-            new_email = request.session.pop('new_email')
-            user.email = new_email
-        except KeyError:
-            pass
+    new_data_field = 'email'
 
 
-class ConfirmEmailChangeUserNameView(EmailConfirmationView):
+class ConfirmEmailChangeUserNameView(ConfirmEmailChangeViewMixin, EmailConfirmationView):
     success_message = 'Имя пользователя успешно обновлено.'
     error_message = 'Срок годности токена истек, запросите новый.'
+    new_data_field = 'user_name'
 
-    def get_confirmation_logic(self, user, request):
-        try:
-            new_username = request.session.pop('new_username')
-            user.user_name = new_username
-        except KeyError:
-            pass
 
 
 
