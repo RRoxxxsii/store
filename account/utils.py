@@ -13,3 +13,7 @@ def send_confirmation_email(template_name: str, email: str, token_id: int, user_
               from_email='admin@ourweb.com',
               recipient_list=[email],
               fail_silently=True)
+
+
+
+

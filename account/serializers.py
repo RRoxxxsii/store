@@ -39,4 +39,6 @@ class ChangeEmailSerializer(serializers.Serializer):
     email = serializers.EmailField()
 
 
+class ChangeUserNameSerializer(serializers.Serializer):
+    user_name = serializers.CharField()
 

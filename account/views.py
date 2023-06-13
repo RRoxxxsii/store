@@ -1,16 +1,13 @@
 from rest_framework import status
 from rest_framework.authtoken.models import Token
-from rest_framework.decorators import renderer_classes, api_view
 from rest_framework.generics import CreateAPIView, RetrieveUpdateAPIView, UpdateAPIView
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 
-from account.logic import UpdateEmail, Register
-from account.models import EmailConfirmationToken, Customer, CustomerProfile
+from account.logic import UpdateEmail, Register, EmailConfirmationView, UpdateUserName
 from account.permissions import IsNotAuthenticated
-from account.serializers import RegisterSerializer, PersonalProfileSerializer, ChangeEmailSerializer
-from account.utils import send_confirmation_email
+from account.serializers import RegisterSerializer, PersonalProfileSerializer, ChangeEmailSerializer, \
+    ChangeUserNameSerializer
 
 
 class ProfileAPIView(RetrieveUpdateAPIView):
@@ -34,29 +31,11 @@ class RegistrationAPIVIew(CreateAPIView):
             instance = Register(serializer)
             user = instance.create_user()
             instance.send_email_message('register_email.txt', user)
-            user.set_password(serializer.data.get('password'))
             data = {'message': 'На вашу почту пришло письмо, перейдите по ссылке в нем чтобы подтвердить аккаунт'}
             return Response(data, status=status.HTTP_201_CREATED)
         else:
             data = serializer.errors
             return Response(data)
-
-
-@api_view(['GET'])
-@renderer_classes([JSONRenderer])
-def confirm_email_view(request):
-    token_id = request.GET.get('token_id', None)
-    user_id = request.GET.get('user_id', None)
-    try:
-        token = EmailConfirmationToken.objects.get(pk=token_id)
-        user = token.customer
-        user.is_active = True
-        Token.objects.create(user=user)
-        user.save()
-        return Response({'message': 'Электронная почта успешно подтверждена.'}, status=200)
-
-    except EmailConfirmationToken.DoesNotExist:
-        return Response({'message': 'Срок годности токена истек, запросите новый.'}, status=400)
 
 
 class ChangeEmailAPIView(UpdateAPIView):
@@ -76,19 +55,55 @@ class ChangeEmailAPIView(UpdateAPIView):
         return Response(serializer.errors, status=400)
 
 
-@api_view(['GET'])
-@renderer_classes([JSONRenderer])
-def confirm_email_change_view(request):
-    token_id = request.GET.get('token_id', None)
-    user_id = request.GET.get('user_id', None)
+class ChangeUserNameAPIView(UpdateAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ChangeUserNameSerializer
 
-    try:
-        token = EmailConfirmationToken.objects.get(pk=token_id)
-        user = token.customer
-        new_email = request.session.pop('new_email')
-        user.email = new_email
-        user.save()
-        return Response({'message': 'Электронная почта успешно обновлена.'}, status=200)
-    except EmailConfirmationToken.DoesNotExist:
-        return Response({'error': 'Срок годности токена истек, запросите новый.'}, status=400)
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            instance = UpdateUserName(serializer=serializer)
+            if instance.username_unique():
+                instance.send_email_message('change_username.txt', user=request.user)
+                instance.set_username_to_session(request.session)
+                return Response({'message': 'Запрос на новую почту отправлен, перейдите по ссылке чтобы подтвердить.'},
+                                status=200)
+            return Response({'error': 'Пользователь с такой именем уже существует.'}, status=400)
+
+        return Response(serializer.errors, status=400)
+
+
+class ConfirmEmailView(EmailConfirmationView):
+    success_message = 'Электронная почта успешно подтверждена.'
+    error_message = 'Срок годности токена истек, запросите новый.'
+
+    def get_confirmation_logic(self, user, request):
+        user.is_active = True
+        Token.objects.create(user=user)
+
+
+class ConfirmEmailChangeView(EmailConfirmationView):
+    success_message = 'Электронная почта успешно обновлена.'
+    error_message = 'Срок годности токена истек, запросите новый.'
+
+    def get_confirmation_logic(self, user, request):
+        try:
+            new_email = request.session.pop('new_email')
+            user.email = new_email
+        except KeyError:
+            pass
+
+
+class ConfirmEmailChangeUserNameView(EmailConfirmationView):
+    success_message = 'Имя пользователя успешно обновлено.'
+    error_message = 'Срок годности токена истек, запросите новый.'
+
+    def get_confirmation_logic(self, user, request):
+        try:
+            new_username = request.session.pop('new_username')
+            user.user_name = new_username
+        except KeyError:
+            pass
+
+
 

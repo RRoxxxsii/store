@@ -2,7 +2,7 @@ import re
 
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import status
-from rest_framework.test import APITestCase, force_authenticate
+from rest_framework.test import APITestCase
 
 from account.models import Customer, CustomerProfile
 from django.urls import reverse
@@ -230,7 +230,7 @@ class TestChangingEmail(APITestCase):
 
     def confirm_email_change(self):
         self.client.force_authenticate(self.user1)
-        self.client.post(self.url, data={'email': 'emailcahnge@gmail.com'})
+        self.client.post(self.url, data={'email': self.email_to_change})
         email_msg = mail.outbox[0]
 
         link = re.search(r'http://.+', email_msg.body).group()
@@ -245,3 +245,40 @@ class TestChangingEmail(APITestCase):
         email_msg = mail.outbox
         self.assertEqual(email_msg, [])
 
+
+class TestChangingUserName(APITestCase):
+
+    def setUp(self) -> None:
+        self.url = reverse('change_username_view')
+
+        self.user1 = Customer.objects.create_user(email='testmail1@gamil.com', user_name='testuser1', password='1234')
+        self.user2 = Customer.objects.create_user(email='testmail2@gamil.com', user_name='testuser2', password='1234')
+        self.username_to_change = 'usernamechange'
+
+    def test_response_status_code(self):
+        self.client.force_authenticate(self.user1)
+        response = self.client.post(self.url, data={'user_name': self.username_to_change})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_get_email(self):
+        self.client.force_authenticate(self.user1)
+        self.client.post(self.url, data={'user_name': self.username_to_change})
+        email_msg = mail.outbox
+        self.assertNotEquals(email_msg, [])
+
+    def confirm_username_change(self):
+        self.client.force_authenticate(self.user1)
+        self.client.post(self.url, data={'email': self.username_to_change})
+        email_msg = mail.outbox[0]
+
+        link = re.search(r'http://.+', email_msg.body).group()
+        self.client.get(link, follow=True)
+        self.user1.refresh_from_db()
+        self.assertEqual(self.user1.user_name, self.username_to_change)
+
+    def test_change_email_that_already_exists(self):
+        self.client.force_authenticate(self.user1)
+        response = self.client.post(self.url, data={'username': self.user2.user_name})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        email_msg = mail.outbox
+        self.assertEqual(email_msg, [])
