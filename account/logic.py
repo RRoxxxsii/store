@@ -76,3 +76,22 @@ class EmailConfirmationView(APIView):
         except EmailConfirmationToken.DoesNotExist:
             return Response({'message': self.error_message}, status=400)
 
+
+class ConfirmEmailChangeMixin(EmailConfirmationView):
+    success_message = ''
+    error_message = ''
+    # field of user model that is supposed to be changed
+    new_data_field = ''
+
+    def get_confirmation_logic(self, user, request):
+        """
+        Supposed to pop an item from session and assign it to user object in order to change a field.
+        The field may be UserObj.email/UserObj.user_name
+        """
+        try:
+            self.new_data_field = request.session.pop(self.new_data_field)
+            user.email = self.new_data_field
+        except KeyError:
+            pass
+
+

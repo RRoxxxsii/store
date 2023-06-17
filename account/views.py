@@ -1,20 +1,13 @@
-from django.db.models import Q
-from django.shortcuts import redirect
-from django.urls import reverse
 from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.generics import CreateAPIView, RetrieveUpdateAPIView, UpdateAPIView
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.request import Request
 from rest_framework.response import Response
-from rest_framework.views import APIView
 
-from account.logic import UpdateEmail, Register, EmailConfirmationView, UpdateUserName
-from account.models import Customer, EmailConfirmationToken
+from account.logic import UpdateEmail, Register, EmailConfirmationView, UpdateUserName, ConfirmEmailChangeMixin
 from account.permissions import IsNotAuthenticated
 from account.serializers import RegisterSerializer, PersonalProfileSerializer, ChangeEmailSerializer, \
-    ChangeUserNameSerializer, UserForgotPasswordSerializer, UserPasswordResetSerializer
-from account.utils import send_confirmation_email
+    ChangeUserNameSerializer
 
 
 class ProfileAPIView(RetrieveUpdateAPIView):
@@ -91,31 +84,13 @@ class ConfirmEmailView(EmailConfirmationView):
         Token.objects.create(user=user)
 
 
-class ConfirmEmailChangeViewMixin(EmailConfirmationView):
-    success_message = ''
-    error_message = ''
-    # field of user model that is supposed to be changed
-    new_data_field = ''
-
-    def get_confirmation_logic(self, user, request):
-        """
-        Supposed to pop an item from session and assign it to user object in order to change a field.
-        The field may be UserObj.email/UserObj.user_name
-        """
-        try:
-            self.new_data_field = request.session.pop(self.new_data_field)
-            user.email = self.new_data_field
-        except KeyError:
-            pass
-
-
-class ConfirmEmailChangeView(ConfirmEmailChangeViewMixin, EmailConfirmationView):
+class ConfirmEmailChangeView(ConfirmEmailChangeMixin, EmailConfirmationView):
     success_message = 'Электронная почта успешно обновлена.'
     error_message = 'Срок годности токена истек, запросите новый.'
     new_data_field = 'email'
 
 
-class ConfirmEmailChangeUserNameView(ConfirmEmailChangeViewMixin, EmailConfirmationView):
+class ConfirmEmailChangeUserNameView(ConfirmEmailChangeMixin, EmailConfirmationView):
     success_message = 'Имя пользователя успешно обновлено.'
     error_message = 'Срок годности токена истек, запросите новый.'
     new_data_field = 'user_name'
