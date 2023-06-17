@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     # Third party packages
     'rest_framework',
     'rest_framework.authtoken',
+    'djoser',
 
     # Django applications
     'account',
@@ -149,4 +150,5 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
     ]
 }
+
 

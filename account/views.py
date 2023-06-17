@@ -1,13 +1,20 @@
+from django.db.models import Q
+from django.shortcuts import redirect
+from django.urls import reverse
 from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.generics import CreateAPIView, RetrieveUpdateAPIView, UpdateAPIView
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.request import Request
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from account.logic import UpdateEmail, Register, EmailConfirmationView, UpdateUserName
+from account.models import Customer, EmailConfirmationToken
 from account.permissions import IsNotAuthenticated
 from account.serializers import RegisterSerializer, PersonalProfileSerializer, ChangeEmailSerializer, \
-    ChangeUserNameSerializer
+    ChangeUserNameSerializer, UserForgotPasswordSerializer, UserPasswordResetSerializer
+from account.utils import send_confirmation_email
 
 
 class ProfileAPIView(RetrieveUpdateAPIView):
@@ -30,7 +37,7 @@ class RegistrationAPIVIew(CreateAPIView):
         if serializer.is_valid():
             instance = Register(serializer)
             user = instance.create_user()
-            instance.send_email_message('register_email.txt', user)
+            instance.send_email_message('email/register_email.txt', user)
             data = {'message': 'На вашу почту пришло письмо, перейдите по ссылке в нем чтобы подтвердить аккаунт'}
             return Response(data, status=status.HTTP_201_CREATED)
         else:
@@ -63,14 +70,14 @@ class ChangeEmailAPIView(ChangeFieldAPIViewMixin, UpdateAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = ChangeEmailSerializer
     update_class = UpdateEmail
-    template_name = 'change_email.txt'
+    template_name = 'email/change_email.txt'
     error_msg = 'Пользователь с такой электронной почтой уже существует.'
 
 
 class ChangeUserNameAPIView(ChangeFieldAPIViewMixin, UpdateAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = ChangeUserNameSerializer
-    template_name = 'change_username.txt'
+    template_name = 'email/change_username.txt'
     update_class = UpdateUserName
     error_msg = 'Пользователь с такой электронной почтой уже существует.'
 
@@ -91,6 +98,10 @@ class ConfirmEmailChangeViewMixin(EmailConfirmationView):
     new_data_field = ''
 
     def get_confirmation_logic(self, user, request):
+        """
+        Supposed to pop an item from session and assign it to user object in order to change a field.
+        The field may be UserObj.email/UserObj.user_name
+        """
         try:
             self.new_data_field = request.session.pop(self.new_data_field)
             user.email = self.new_data_field
@@ -108,6 +119,7 @@ class ConfirmEmailChangeUserNameView(ConfirmEmailChangeViewMixin, EmailConfirmat
     success_message = 'Имя пользователя успешно обновлено.'
     error_message = 'Срок годности токена истек, запросите новый.'
     new_data_field = 'user_name'
+
 
 
 

@@ -61,10 +61,6 @@ class EmailConfirmationView(APIView):
 
     @abstractmethod
     def get_confirmation_logic(self, user: Customer, request: Request):
-        """
-        Supposed to pop an item from session and assign it to user object in order to change a field.
-        The field may be UserObj.email/UserObj.user_name
-        """
         pass
 
     def get(self, request: Request):

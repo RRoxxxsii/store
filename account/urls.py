@@ -1,8 +1,12 @@
-from django.urls import path
+from django.urls import path, include
+from django.contrib.auth import views as auth_views
+
 from rest_framework.authtoken.views import obtain_auth_token
+from rest_framework.routers import DefaultRouter
 
 from . import views
 
+router = DefaultRouter()
 
 urlpatterns = [
     path('register/', views.RegistrationAPIVIew.as_view(), name='register'),
@@ -16,9 +20,6 @@ urlpatterns = [
 
     # Change user_name
     path('change-username/', views.ChangeUserNameAPIView.as_view(), name='change_username_view'),
-    path('confirm-change-username/', views.ConfirmEmailChangeUserNameView.as_view(), name='confirm-email-change-view')
+    path('confirm-change-username/', views.ConfirmEmailChangeUserNameView.as_view(), name='confirm-email-change-view'),
 
 ]
-
-
-

@@ -6,8 +6,8 @@ from .validators import password_validate
 
 
 class RegisterSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(validators=[password_validate])
-    password2 = serializers.CharField(validators=[password_validate])
+    password = serializers.CharField(max_length=35, required=True, validators=[password_validate])
+    password2 = serializers.CharField(max_length=35, required=True, validators=[password_validate])
 
     class Meta:
         model = Customer
@@ -36,9 +36,10 @@ class PersonalProfileSerializer(serializers.ModelSerializer):
 
 
 class ChangeEmailSerializer(serializers.Serializer):
-    email = serializers.EmailField()
+    email = serializers.EmailField(required=True)
 
 
 class ChangeUserNameSerializer(serializers.Serializer):
-    user_name = serializers.CharField()
+    user_name = serializers.CharField(required=True)
+
 
