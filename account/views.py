@@ -51,7 +51,7 @@ class ChangeFieldAPIViewMixin(UpdateAPIView):
         if serializer.is_valid():
             instance = self.update_class(serializer=serializer)
             if instance.unique():
-                instance.send_email_message('change_email.txt', user=request.user)
+                instance.send_email_message('email/change_email.txt', user=request.user)
                 instance.set_to_session(request.session)
                 return Response({'message': 'Запрос на новую почту отправлен, перейдите по ссылке чтобы подтвердить.'}, status=200)
             return Response({'error': 'Пользователь с такой электронной почтой уже существует.'}, status=400)
