@@ -60,19 +60,19 @@ class Product(models.Model):
     description = models.TextField(verbose_name='Описание')
 
     price = models.IntegerField(verbose_name='Цена')
-    discount_percent = models.IntegerField(default=0, verbose_name='Процент скидки')
+    discount_percent = models.PositiveIntegerField(default=0, verbose_name='Процент скидки')
 
-    in_stock = models.BooleanField(default=True, verbose_name='В наличии')
+    in_stock = models.BooleanField(default=False, verbose_name='В наличии')
     amount = models.IntegerField(verbose_name='Количество')
 
     vendor = models.ForeignKey(Vendor, on_delete=models.CASCADE, verbose_name='Поставщик')
     category = models.ForeignKey(Category, on_delete=models.CASCADE, verbose_name='Категория')
     brand = models.ForeignKey(Brand, on_delete=models.CASCADE, verbose_name='Бренд')
-    image = models.ForeignKey(ProductImage, on_delete=models.SET_DEFAULT, default='media/images.png',
+    image = models.ForeignKey(ProductImage, on_delete=models.SET_DEFAULT, default=1,
                               verbose_name='Изображение')
 
     def get_price_with_discount(self):
-        return self.price - self.price / self.discount_percent
+        return int(self.price - self.price / 100 * self.discount_percent) if self.discount_percent > 0 else self.price
 
     def __str__(self):
         return f'{self.product_name} - {self.price} руб.'
