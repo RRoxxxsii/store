@@ -1,5 +1,5 @@
 from rest_framework.test import APITestCase
-from store.models import Vendor, Product, Category, ProductImage, Brand
+from store.models import Vendor, Product, Category, Brand
 
 
 class TestDiscount(APITestCase):
@@ -17,21 +17,15 @@ class TestDiscount(APITestCase):
         # Brand
         Brand.objects.create(brand_name='brand')
 
-        # Image
-        ProductImage.objects.create(image_url='media/images.png')
-
         # Products
-
-        self.product1 = Product.objects.create(product_name='product', description='description', amount=50, price=50000,
-                                               vendor_id=1, category_id=2, brand_id=1, image_id=1)
+        self.product1 = Product.objects.create(product_name='product', description='description', amount=50,
+                                               price=50000, vendor_id=1, category_id=2, brand_id=1)
 
         self.product2 = Product.objects.create(product_name='product', description='description', amount=50,
-                                               price=50000, discount_percent=50,
-                                               vendor_id=1, category_id=2, brand_id=1, image_id=1)
+                                               price=50000, discount_percent=50, vendor_id=1, category_id=2, brand_id=1)
 
         self.product3 = Product.objects.create(product_name='product', description='description', amount=50,
-                                               price=50000, discount_percent=5,
-                                               vendor_id=1, category_id=2, brand_id=1, image_id=1)
+                                               price=50000, discount_percent=5, vendor_id=1, category_id=2, brand_id=1)
 
     def test_calculate(self):
         self.assertEqual(self.product1.get_price_with_discount(), 50000)

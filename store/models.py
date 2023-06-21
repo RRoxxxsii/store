@@ -14,13 +14,17 @@ class Vendor(models.Model):
         verbose_name = 'Поставщик'
         verbose_name_plural = 'Поставщики'
 
+    def save(self, *args, **kwargs):
+        self.vendor_name = self.vendor_name.capitalize()
+        super(Vendor, self).save(*args, **kwargs)
+
 
 class Category(models.Model):
     category_name = models.CharField(max_length=255, verbose_name='Категория')
     description = models.TextField(verbose_name='Описание')
     in_stock = models.BooleanField(default=False, verbose_name='В наличии')
     slug = models.SlugField()
-    image_url = models.ImageField(upload_to='categories/uploads/%Y/%m/%d/', null=True, blank=True,
+    image = models.ImageField(upload_to='categories/uploads/%Y/%m/%d/', null=True, blank=True,
                                   default='media/images.png', verbose_name='Изображение')
 
     parent = models.ForeignKey('self', on_delete=models.PROTECT, related_name='children', null=True, blank=True,
@@ -33,18 +37,13 @@ class Category(models.Model):
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
 
-
-class ProductImage(models.Model):
-    image_url = models.ImageField(upload_to='products/uploads/%Y/%m/%d/', null=True, blank=True,
-                                  default='media/images.png', verbose_name='Изображение')
-
-    class Meta:
-        verbose_name = 'Карточка товара'
-        verbose_name_plural = 'Карточки товара'
+    def save(self, *args, **kwargs):
+        self.category_name = self.category_name.capitalize()
+        super(Category, self).save(*args, **kwargs)
 
 
 class Brand(models.Model):
-    brand_name = models.CharField(verbose_name='Бренд', max_length=255)
+    brand_name = models.CharField(verbose_name='Бренд', max_length=255, unique=True)
     slug = models.SlugField()
 
     def __str__(self):
@@ -53,6 +52,10 @@ class Brand(models.Model):
     class Meta:
         verbose_name = 'Бренд'
         verbose_name_plural = 'Бренды'
+
+    def save(self, *args, **kwargs):
+        self.brand_name = self.brand_name.capitalize()
+        super(Brand, self).save(*args, **kwargs)
 
 
 class Product(models.Model):
@@ -68,8 +71,6 @@ class Product(models.Model):
     vendor = models.ForeignKey(Vendor, on_delete=models.CASCADE, verbose_name='Поставщик')
     category = models.ForeignKey(Category, on_delete=models.CASCADE, verbose_name='Категория')
     brand = models.ForeignKey(Brand, on_delete=models.CASCADE, verbose_name='Бренд')
-    image = models.ForeignKey(ProductImage, on_delete=models.SET_DEFAULT, default=1,
-                              verbose_name='Изображение')
 
     def get_price_with_discount(self):
         return int(self.price - self.price / 100 * self.discount_percent) if self.discount_percent > 0 else self.price
@@ -81,4 +82,25 @@ class Product(models.Model):
         verbose_name = 'Товар'
         verbose_name_plural = 'Товары'
 
+    def save(self, *args, **kwargs):
+        self.product_name = self.product_name.capitalize()
+        super(Product, self).save(*args, **kwargs)
+
+
+class ProductImage(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="product_image")
+    image = models.ImageField(
+        verbose_name="Изображение", default='media/images.png')
+
+    alt_text = models.CharField(
+        verbose_name="Альтернативый текст",
+        max_length=255,
+        null=True,
+        blank=True,
+    )
+    is_feature = models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name = 'Карточка товара'
+        verbose_name_plural = 'Карточки товара'
 

@@ -1,12 +1,10 @@
-from django.urls import path, include
-from django.contrib.auth import views as auth_views
+from django.urls import path
 
 from rest_framework.authtoken.views import obtain_auth_token
 from rest_framework.routers import DefaultRouter
 
 from . import views
 
-router = DefaultRouter()
 
 urlpatterns = [
     path('register/', views.RegistrationAPIVIew.as_view(), name='register'),
