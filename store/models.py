@@ -25,7 +25,7 @@ class Category(models.Model):
     in_stock = models.BooleanField(default=False, verbose_name='В наличии')
     slug = models.SlugField()
     image = models.ImageField(upload_to='categories/uploads/%Y/%m/%d/', null=True, blank=True,
-                                  default='media/images.png', verbose_name='Изображение')
+                              default='media/images.png', verbose_name='Изображение')
 
     parent = models.ForeignKey('self', on_delete=models.PROTECT, related_name='children', null=True, blank=True,
                                verbose_name='Родительская категория')
@@ -103,4 +103,7 @@ class ProductImage(models.Model):
     class Meta:
         verbose_name = 'Карточка товара'
         verbose_name_plural = 'Карточки товара'
+
+    def __str__(self):
+        return self.product
 
