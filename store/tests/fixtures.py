@@ -7,19 +7,21 @@ class FixtureTestData:
         self.vendor = Vendor.objects.create(vendor_name='vendor', description='description')
 
         # Category
-        self.category = Category.objects.create(category_name='category', description='description')
+        self.category = Category.objects.create(category_name='category', description='description', slug='category',
+                                                is_parent_category=True)
 
-        self.category2 = Category.objects.create(category_name='category2', description='description')
+        self.category2 = Category.objects.create(category_name='category2', description='description', slug='category2',
+                                                 is_parent_category=True)
 
         # Subcategory
         self.subcategory = Category.objects.create(category_name='subcategory', description='description',
-                                                   parent_id=self.category.id)
+                                                   parent_id=self.category.id, slug='subcategory')
 
         self.subcategory2 = Category.objects.create(category_name='subcategory2', description='description',
-                                                   parent_id=self.category.id)
+                                                    parent_id=self.category.id, slug='subcategory2')
 
         self.subcategory3 = Category.objects.create(category_name='subcategory3', description='description',
-                                                   parent_id=self.category2.id)
+                                                    parent_id=self.category2.id, slug='subcategory3')
 
         # Brand
         self.brand = Brand.objects.create(brand_name='brand')
@@ -42,7 +44,7 @@ class FixtureTestData:
 
         # Images
         ProductImage.objects.create(product_id=self.product1.id, is_feature=True, image='media/images.png')
-        ProductImage.objects.create(product_id=self.product1.id, is_feature=False)
-        ProductImage.objects.create(product_id=self.product1.id, is_feature=False)
+        ProductImage.objects.create(product_id=self.product1.id, is_feature=False, image='media/images.png')
+        ProductImage.objects.create(product_id=self.product1.id, is_feature=False, image='media/images.png')
 
-        ProductImage.objects.create(product_id=self.product3.id, is_feature=True)
+        ProductImage.objects.create(product_id=self.product3.id, is_feature=True, image='media/images.png')

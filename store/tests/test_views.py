@@ -55,7 +55,7 @@ class TestCategoryListAPIView(APITestCase):
     def setUp(self) -> None:
         super().setUp()
 
-        self.category_list_url = reverse('category-list')
+        self.category_list_url = reverse('categories')
 
     def test_get_category_list(self):
         response = self.client.get(self.category_list_url)
@@ -71,11 +71,11 @@ class TestCategoryDetailView(FixtureTestData, APITestCase):
     def setUp(self) -> None:
         super().setUp()
 
-        self.parent_category_detail_url = reverse('category-detail', kwargs={'pk': self.category.id})
-        self.parent_category_detail_url2 = reverse('category-detail', kwargs={'pk': self.category2.id})
+        self.parent_category_detail_url = reverse('category-detail', kwargs={'slug': self.category.slug})
+        self.parent_category_detail_url2 = reverse('category-detail', kwargs={'slug': self.category2.slug})
 
-        self.subcategory_detail_url = reverse('category-detail', kwargs={'pk': self.subcategory.id})
-        self.subcategory_detail_url = reverse('category-detail', kwargs={'pk': self.subcategory2.id})
+        self.subcategory_detail_url = reverse('category-detail', kwargs={'slug': self.subcategory.slug})
+        self.subcategory_detail_url = reverse('category-detail', kwargs={'slug': self.subcategory2.slug})
 
     def test_get_parent_category(self):
         """

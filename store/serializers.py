@@ -1,3 +1,4 @@
+from django.urls import reverse
 from rest_framework import serializers
 from store.models import Product, ProductImage, Category
 
@@ -7,7 +8,7 @@ class ProductImageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ProductImage
-        fields = ('image_url', 'alt_text',)
+        fields = ('image_url', 'alt_text', 'is_feature')
         editable = False
         read_only = True
 
@@ -26,10 +27,11 @@ class SerializerDiscountPriceMixin(serializers.ModelSerializer):
 
 
 class ProductListSerializer(SerializerDiscountPriceMixin):
+    detail_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Product
-        fields = ('product_name', 'price', 'discount_percent', 'price_with_discount')
+        fields = ('product_name', 'price', 'discount_percent', 'price_with_discount', 'detail_url')
         read_only = True
 
     def to_representation(self, instance):
@@ -38,6 +40,10 @@ class ProductListSerializer(SerializerDiscountPriceMixin):
                                                        instance=instance.product_image.filter(is_feature=True)).data
         return data
 
+    def get_detail_url(self, instance):
+        # Assuming you have a named URL pattern for the product detail view
+        return self.context['request'].build_absolute_uri(reverse('product-detail', args=[instance.pk]))
+
 
 class ProductDetailSerializer(SerializerDiscountPriceMixin):
     vendor = serializers.StringRelatedField()
@@ -45,7 +51,7 @@ class ProductDetailSerializer(SerializerDiscountPriceMixin):
 
     class Meta:
         model = Product
-        exclude = ('id', 'category')
+        exclude = ('id', 'category', 'created', 'updated')
         read_only = True
 
     def to_representation(self, instance):
@@ -58,15 +64,27 @@ class ProductDetailSerializer(SerializerDiscountPriceMixin):
 
 class CategoryListSerializer(serializers.ModelSerializer):
     children = serializers.SerializerMethodField()
+    detail_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Category
-        fields = ('category_name', 'children')
+        fields = ('category_name', 'children', 'detail_url')
 
     def get_children(self, instance):
         subcategories = instance.children.all()
-        serializer = CategoryListSerializer(subcategories, many=True)
+        serializer = self.__class__(subcategories, many=True,
+                                    context=self.context)
         return serializer.data
+
+    def get_detail_url(self, instance):
+        if not instance.is_parent_category:
+            return self.context['request'].build_absolute_uri(reverse('category-detail', args=[instance.slug]))
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        if instance.is_parent_category:
+            data.pop('detail_url', None)
+        return data
 
 
 class CategoryDetailSerializer(serializers.ModelSerializer):
@@ -76,6 +94,8 @@ class CategoryDetailSerializer(serializers.ModelSerializer):
         model = Category
         exclude = ('id',)
         read_only = True
+
+
 
 
 

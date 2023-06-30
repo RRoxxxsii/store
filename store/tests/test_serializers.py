@@ -20,36 +20,42 @@ class TestProductListSerializer(FixtureTestData, APITestCase):
                                           context={'request': self.request}).data
         self.expected_data = [
             {
-                'product_name': self.product1.product_name,
-                'price': self.product1.price,
+                'detail_url': f'http://testserver/api/v1/store/products/{self.product1.id}/',
                 'discount_percent': self.product1.discount_percent,
+                'price': self.product1.price,
                 'price_with_discount': self.product1.get_price_with_discount(),
                 'product_image': [
                     {
                         "image_url": 'http://testserver' + str(self.product1.product_image.first().image.url),
-                        "alt_text": None
+                        "alt_text": None,
+                        "is_feature": True
                     }
-                ]
+                ],
+                'product_name': self.product1.product_name
             },
             {
-                'product_name': self.product2.product_name,
-                'price': self.product2.price,
+                'detail_url': f'http://testserver/api/v1/store/products/{self.product2.id}/',
                 'discount_percent': self.product2.discount_percent,
+                'price': self.product2.price,
                 'price_with_discount': self.product2.get_price_with_discount(),
-                'product_image': []
+                'product_image': [],
+                'product_name': self.product2.product_name,
+
             },
 
             {
-                'product_name': self.product3.product_name,
-                'price': self.product3.price,
+                'detail_url': f'http://testserver/api/v1/store/products/{self.product3.id}/',
                 'discount_percent': self.product3.discount_percent,
+                'price': self.product3.price,
                 'price_with_discount': self.product3.get_price_with_discount(),
                 'product_image': [
                     {
                         "image_url": 'http://testserver' + str(self.product3.product_image.first().image.url),
-                        "alt_text": None
+                        "alt_text": None,
+                        "is_feature": True
                     }
-                ]
+                ],
+                'product_name': self.product3.product_name
             },
         ]
 
@@ -82,15 +88,20 @@ class TestProductDetailSerializer(FixtureTestData, APITestCase):
             "product_image": [
                 {
                     "alt_text": None,
-                    "image_url": "http://testserver/media/images.png"
+                    "image_url": "http://testserver/media/images.png",
+                    "is_feature": True
                 },
                 {
                     "alt_text": None,
-                    "image_url": "http://testserver/media/images.png"
+                    "image_url": "http://testserver/media/images.png",
+                    "is_feature": False
+
                 },
                 {
                     "alt_text": None,
-                    "image_url": "http://testserver/media/images.png"
+                    "image_url": "http://testserver/media/images.png",
+                    "is_feature": False
+
                 }
             ],
             "product_name": "Product",
@@ -120,7 +131,8 @@ class TestProductDetailSerializer(FixtureTestData, APITestCase):
             "product_image": [
                 {
                     "alt_text": None,
-                    "image_url": "http://testserver/media/images.png"
+                    "image_url": "http://testserver/media/images.png",
+                    "is_feature": True
                 }
             ],
             "product_name": "Product",
@@ -149,7 +161,7 @@ class TestCategoryListSerializer(FixtureTestData, APITestCase):
 
         self.request = RequestFactory().get('/')
         self.data = CategoryListSerializer(Category.objects.filter(parent__isnull=True), many=True,
-                                            context={'request': self.request}).data
+                                           context={'request': self.request}).data
 
         expected_data = [
             {
@@ -157,11 +169,14 @@ class TestCategoryListSerializer(FixtureTestData, APITestCase):
                 "children": [
                     {
                         "category_name": "Subcategory",
-                        "children": []
+                        "children": [],
+                        "detail_url": f'http://testserver/api/v1/store/categories/{self.subcategory.slug}/',
                     },
                     {
                         "category_name": "Subcategory2",
-                        "children": []
+                        "children": [],
+                        "detail_url": f'http://testserver/api/v1/store/categories/{self.subcategory2.slug}/',
+
                     }
                 ]
             },
@@ -170,7 +185,9 @@ class TestCategoryListSerializer(FixtureTestData, APITestCase):
                 "children": [
                     {
                         "category_name": "Subcategory3",
-                        "children": []
+                        "children": [],
+                        "detail_url": f'http://testserver/api/v1/store/categories/{self.subcategory3.slug}/',
+
                     }
                 ]
             }
