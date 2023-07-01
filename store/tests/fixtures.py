@@ -42,6 +42,17 @@ class FixtureTestData:
                                                category_id=self.subcategory.id, brand_id=self.brand.id,
                                                )
 
+        self.product4 = Product.objects.create(product_name='product', description='description', amount=50,
+                                               price=5000, discount_percent=5, vendor_id=self.vendor.id,
+                                               category_id=self.subcategory.id, brand_id=self.brand.id,
+                                               )
+
+        self.product5 = Product.objects.create(product_name='product', description='description', amount=50,
+                                               price=10000, discount_percent=5, vendor_id=self.vendor.id,
+                                               category_id=self.subcategory.id, brand_id=self.brand.id,
+                                               )
+
+
         # Images
         ProductImage.objects.create(product_id=self.product1.id, is_feature=True, image='media/images.png')
         ProductImage.objects.create(product_id=self.product1.id, is_feature=False, image='media/images.png')

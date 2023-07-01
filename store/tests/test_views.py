@@ -1,3 +1,5 @@
+import json
+
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -21,6 +23,36 @@ class TestProductListAPIView(FixtureTestData, APITestCase):
         """
         response = self.client.post(self.product_list_url)
         self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+
+class TestProductListAPIViewFilter(FixtureTestData, APITestCase):
+
+    def setUp(self):
+        super().setUp()
+
+    def test_min_max_price(self):
+        response = self.client.get('/api/v1/store/products/?min_price=100&max_price=10000')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        amount_of_products = len(eval(str(json.loads(response.content.decode()))))
+        self.assertEqual(amount_of_products, 2)
+
+    def test_min_price(self):
+        response = self.client.get('/api/v1/store/products/?min_price=49000')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        amount_of_products = len(eval(str(json.loads(response.content.decode()))))
+        self.assertEqual(amount_of_products, 3)
+
+    def test_max_price(self):
+        response = self.client.get('/api/v1/store/products/?max_price=20000')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        amount_of_products = len(eval(str(json.loads(response.content.decode()))))
+        self.assertEqual(amount_of_products, 2)
+
+    def test_price_that_is_not_on_condition(self):
+        response = self.client.get('/api/v1/store/products/?min_price=0&max_price=10')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        amount_of_products = len(eval(str(json.loads(response.content.decode()))))
+        self.assertEqual(amount_of_products, 0)
 
 
 class TestProductRetrieveAPIView(FixtureTestData, APITestCase):
@@ -96,6 +128,7 @@ class TestCategoryDetailView(FixtureTestData, APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response2.status_code, status.HTTP_200_OK)
+
 
 
 

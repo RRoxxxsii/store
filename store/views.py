@@ -1,23 +1,20 @@
 from django.shortcuts import get_object_or_404
-from rest_framework import filters, status
+from rest_framework import status, filters
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ReadOnlyModelViewSet
 
+from store.filters import ProductPriceFilterBackend
 from store.models import Product, Category
 from store.serializers import ProductListSerializer, ProductDetailSerializer, CategoryListSerializer
-
-
-class ProductBaseView:
-    pass
 
 
 class ProductAPIViewSet(ReadOnlyModelViewSet):
     serializer_class = ProductListSerializer
     serializer_detail_class = ProductDetailSerializer
     queryset = Product.objects.all()
-    filter_backends = [filters.OrderingFilter]
+    filter_backends = [filters.OrderingFilter, ProductPriceFilterBackend]
     ordering_fields = ['price', 'product_name', 'created']
 
     def get_serializer_class(self):
