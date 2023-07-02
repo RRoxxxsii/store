@@ -10,5 +10,6 @@ urlpatterns = [
 ]
 
 router.register('products', views.ProductAPIViewSet)
+router.register('products-with-discount', views.ProductsWithDiscountAPIVIewSet, basename='products-with-discount')
 
 urlpatterns += router.urls

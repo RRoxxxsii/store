@@ -130,6 +130,20 @@ class TestCategoryDetailView(FixtureTestData, APITestCase):
         self.assertEqual(response2.status_code, status.HTTP_200_OK)
 
 
+class TestProductsWithDiscount(FixtureTestData, APITestCase):
 
+    def setUp(self) -> None:
+        super().setUp()
+
+        self.product_list_url = reverse('products-with-discount-list')
+
+    def test_products_with_discount_status_code(self):
+        response = self.client.get(self.product_list_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_products_with_discount_amount(self):
+        response = self.client.get(self.product_list_url)
+        amount_of_products = len(eval(str(json.loads(response.content.decode()))))
+        self.assertEqual(amount_of_products, 4)
 
 
