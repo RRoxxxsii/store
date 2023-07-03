@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     # Django applications
     'account',
     'store',
+    'reviews',
 ]
 
 MIDDLEWARE = [

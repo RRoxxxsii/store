@@ -8,6 +8,7 @@ from account.logic import UpdateEmail, Register, EmailConfirmationView, UpdateUs
 from account.permissions import IsNotAuthenticated
 from account.serializers import RegisterSerializer, PersonalProfileSerializer, ChangeEmailSerializer, \
     ChangeUserNameSerializer
+from account.utils import ChangeFieldAPIViewMixin
 
 
 class ProfileAPIView(RetrieveUpdateAPIView):
@@ -36,27 +37,6 @@ class RegistrationAPIVIew(CreateAPIView):
         else:
             data = serializer.errors
             return Response(data)
-
-
-class ChangeFieldAPIViewMixin(UpdateAPIView):
-    permission_classes = [IsAuthenticated]
-    serializer_class = ''
-    update_class = ''
-    template_name = ''
-    success_msg = 'Запрос на новую почту отправлен, перейдите по ссылке чтобы подтвердить.'
-    error_msg = ''
-
-    def post(self, request):
-        serializer = self.serializer_class(data=request.data)
-        if serializer.is_valid():
-            instance = self.update_class(serializer=serializer)
-            if instance.unique():
-                instance.send_email_message('email/change_email.txt', user=request.user)
-                instance.set_to_session(request.session)
-                return Response({'message': 'Запрос на новую почту отправлен, перейдите по ссылке чтобы подтвердить.'}, status=200)
-            return Response({'error': 'Пользователь с такой электронной почтой уже существует.'}, status=400)
-
-        return Response(serializer.errors, status=400)
 
 
 class ChangeEmailAPIView(ChangeFieldAPIViewMixin, UpdateAPIView):
