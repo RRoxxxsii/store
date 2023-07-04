@@ -2,6 +2,7 @@ from django.core.mail import send_mail
 from django.template.loader import get_template
 from rest_framework.generics import UpdateAPIView
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
 
 def send_confirmation_email(template_name: str, email: str, token_id: int, user_id: int):

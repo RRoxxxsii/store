@@ -3,6 +3,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.generics import CreateAPIView, RetrieveUpdateAPIView, UpdateAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from account.logic import UpdateEmail, Register, EmailConfirmationView, UpdateUserName, ConfirmEmailChangeMixin
 from account.permissions import IsNotAuthenticated
@@ -74,8 +75,6 @@ class ConfirmEmailChangeUserNameView(ConfirmEmailChangeMixin, EmailConfirmationV
     success_message = 'Имя пользователя успешно обновлено.'
     error_message = 'Срок годности токена истек, запросите новый.'
     new_data_field = 'user_name'
-
-
 
 
 

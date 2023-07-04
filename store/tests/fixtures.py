@@ -1,3 +1,5 @@
+from account.models import Customer
+from reviews.models import ProductReview
 from store.models import Product, Brand, Category, Vendor, ProductImage
 
 
@@ -59,3 +61,35 @@ class FixtureTestData:
         ProductImage.objects.create(product_id=self.product1.id, is_feature=False, image='media/images.png')
 
         ProductImage.objects.create(product_id=self.product3.id, is_feature=True, image='media/images.png')
+
+        # Users
+        self.user1 = Customer.objects.create(user_name='testuser1', email='testuser1@gmail.com', password='somepswrd1',
+                                             mobile='88005553535')
+
+        self.user2 = Customer.objects.create(user_name='testuser2', email='testuser2@gmail.com',
+                                             password='somepswrd1', mobile='88005553536')
+
+        self.user3 = Customer.objects.create(user_name='testuser3', email='testuser3@gmail.com', password='somepswrd1',
+                                             mobile='88005553537')
+
+        # Reviews
+        self.product_review1 = ProductReview.objects.create(user=self.user1, product=self.product1, rating=5,
+                                                            usage_period='LESS THAN MONTH', advantages='price',
+                                                            disadvantages='None', comment='Best product')
+
+        self.product_review2 = ProductReview.objects.create(user=self.user1, product=self.product2, rating=2,
+                                                            usage_period='LESS THAN MONTH', advantages='None',
+                                                            disadvantages='The product is disadvantage',
+                                                            comment='The worst product ever bought')
+
+        self.product_review3 = ProductReview.objects.create(user=self.user2, product=self.product1, rating=1,
+                                                            usage_period='LESS THAN MONTH', advantages='None',
+                                                            disadvantages='The product is disadvantage',
+                                                            comment='The worst product ever bought')
+
+        self.product_review4 = ProductReview.objects.create(user=self.user3, product=self.product2, rating=4,
+                                                            usage_period='LESS THAN MONTH', advantages='price',
+                                                            disadvantages='None', comment='Almost the best product')
+
+
+

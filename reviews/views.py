@@ -1,10 +1,12 @@
 from rest_framework import status
-from rest_framework.generics import ListAPIView, CreateAPIView, RetrieveUpdateDestroyAPIView
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import permission_classes
+from rest_framework.generics import ListAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from reviews.models import ProductReview
+from reviews.permissions import IsOwner
 from reviews.serializers import ProductReviewSerializer, ProductReviewPostSerializer
 from store.models import Product
 
@@ -41,9 +43,15 @@ class ProductReviewPostAPIView(APIView):
 
 
 class ProductReviewRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
-    permission_classes = (IsAuthenticated, )
     serializer_class = ProductReviewPostSerializer
     queryset = ProductReview.objects.all()
+
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            return [AllowAny()]
+        else:
+            return [IsAuthenticated(), IsOwner()]
+
 
 
 
