@@ -51,7 +51,7 @@ class ProductDetailSerializer(SerializerDiscountPriceMixin):
 
     class Meta:
         model = Product
-        exclude = ('id', 'category', 'created', 'updated')
+        exclude = ('category', 'created', 'updated')
         read_only = True
 
     def to_representation(self, instance):
