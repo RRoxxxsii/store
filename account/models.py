@@ -59,6 +59,7 @@ class Customer(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.user_name
 
+
 class CustomerProfile(models.Model):
     customer = models.OneToOneField(Customer, on_delete=models.CASCADE, related_name='customer_profile')
     city = models.CharField(max_length=250, default=None, null=True)

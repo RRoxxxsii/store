@@ -17,7 +17,6 @@ class ProductAPIViewSet(ProductBaseMixin, ReadOnlyModelViewSet):
     ordering_fields = ['price', 'product_name', 'created']
 
 
-
 class CategoryListAPIView(ListAPIView):
     queryset = Category.objects.filter(parent__isnull=True)
     serializer_class = CategoryListSerializer
