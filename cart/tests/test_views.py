@@ -111,20 +111,20 @@ class TestAddProductToCart(FixtureTestData, APITestCase):
         self.assertEqual(product2_item.amount, 3)
 
 
-# class TestCartSummary(FixtureTestData, APITestCase):
-#
-#     def setUp(self) -> None:
-#         super().setUp()
-#         self.url = reverse('cart-summary')
-#
-#     def test_get_card_response_not_authenticated(self):
-#         response = self.client.get(self.url)
-#         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-#
-#     def test_get_cart_response_authenticated(self):
-#         self.client.force_authenticate(self.user1)
-#         response = self.client.get(self.url)
-#         self.assertEqual(response.status_code, status.HTTP_200_OK)
+class TestCartSummary(FixtureTestData, APITestCase):
+
+    def setUp(self) -> None:
+        super().setUp()
+        self.url = reverse('cart-summary')
+
+    def test_get_card_response_not_authenticated(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_get_cart_response_authenticated(self):
+        self.client.force_authenticate(self.user1)
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
 
