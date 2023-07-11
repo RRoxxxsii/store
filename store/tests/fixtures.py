@@ -1,4 +1,7 @@
+import uuid
+
 from account.models import Customer
+from cart.models import Cart, CartItem
 from reviews.models import ProductReview
 from store.models import Product, Brand, Category, Vendor, ProductImage
 
@@ -91,6 +94,23 @@ class FixtureTestData:
                                                             usage_period='LESS THAN MONTH', advantages='price',
                                                             disadvantages='None', comment='Almost the best product')
 
+class FixtureTestCartData(FixtureTestData):
 
+    def setUp(self) -> None:
 
+        super().setUp()
+        session_cart1, session_cart2, session_cart3 = (str(uuid.uuid4()) for i in range(3))
+        self.cart1 = Cart.objects.create(session_id=session_cart1)
+        self.cart2 = Cart.objects.create(session_id=session_cart2, owner=self.user1)
+        self.cart3 = Cart.objects.create(session_id=session_cart2, owner=self.user2, completed=True)
+
+        self.cart_items1 = CartItem.objects.create(cart=self.cart1, product=self.product1, amount=1)
+        self.cart_items2 = CartItem.objects.create(cart=self.cart1, product=self.product2, amount=1)
+        self.cart_items3 = CartItem.objects.create(cart=self.cart1, product=self.product3, amount=3)
+
+        self.cart_items4 = CartItem.objects.create(cart=self.cart2, product=self.product1, amount=1)
+        self.cart_items5 = CartItem.objects.create(cart=self.cart2, product=self.product2, amount=1)
+        self.cart_items6 = CartItem.objects.create(cart=self.cart2, product=self.product3, amount=3)
+
+        self.cart_items7 = CartItem.objects.create(cart=self.cart3, product=self.product1, amount=20)
 

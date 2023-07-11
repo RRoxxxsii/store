@@ -1,12 +1,11 @@
 import uuid
 
 from rest_framework import status
-from rest_framework.generics import CreateAPIView
+from rest_framework.generics import CreateAPIView, ListAPIView
 from rest_framework.response import Response
 
 from cart.models import Cart, CartItem
-from cart.serializers import AddItemToCartSerializer
-
+from cart.serializers import AddItemToCartSerializer, CartSummarySerializer
 
 session = {'user_session': 'some_key'}
 
@@ -42,3 +41,17 @@ class CartAddAPIView(CreateAPIView):
             return Response(data=serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class CartSummaryAPIView(ListAPIView):
+    queryset = Cart.objects.all()
+    serializer_class = CartSummarySerializer
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['request'] = self.request
+        return context
+
+
+
+

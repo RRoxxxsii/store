@@ -20,6 +20,7 @@ class TestProductListSerializer(FixtureTestData, APITestCase):
                                           context={'request': self.request}).data
         self.expected_data = [
             {
+                'id': self.product1.id,
                 'detail_url': f'http://testserver/api/v1/store/products/{self.product1.id}/',
                 'discount_percent': self.product1.discount_percent,
                 'price': self.product1.price,
@@ -34,6 +35,7 @@ class TestProductListSerializer(FixtureTestData, APITestCase):
                 'product_name': self.product1.product_name
             },
             {
+                'id': self.product2.id,
                 'detail_url': f'http://testserver/api/v1/store/products/{self.product2.id}/',
                 'discount_percent': self.product2.discount_percent,
                 'price': self.product2.price,
@@ -44,6 +46,7 @@ class TestProductListSerializer(FixtureTestData, APITestCase):
             },
 
             {
+                'id': self.product3.id,
                 'detail_url': f'http://testserver/api/v1/store/products/{self.product3.id}/',
                 'discount_percent': self.product3.discount_percent,
                 'price': self.product3.price,

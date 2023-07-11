@@ -31,7 +31,7 @@ class ProductListSerializer(SerializerDiscountPriceMixin):
 
     class Meta:
         model = Product
-        fields = ('product_name', 'price', 'discount_percent', 'price_with_discount', 'detail_url')
+        fields = ('id', 'product_name', 'price', 'discount_percent', 'price_with_discount', 'detail_url')
         read_only = True
 
     def to_representation(self, instance):

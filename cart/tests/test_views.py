@@ -1,4 +1,7 @@
+import uuid
+
 from django.urls import reverse
+from rest_framework import status
 from rest_framework.test import APITestCase
 
 from cart.models import Cart, CartItem
@@ -9,12 +12,11 @@ class TestAddProductToCart(FixtureTestData, APITestCase):
 
     def setUp(self) -> None:
         super().setUp()
-
         self.url = 'add-to-cart'
 
     def test_add_product_to_cart_user_is_not_authenticated(self):
         response = self.client.post(reverse(self.url), data={'product': self.product1.id, 'amount': 1})
-        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         cart = Cart.objects.all().first()
         cart_items = CartItem.objects.all().first()
@@ -25,7 +27,7 @@ class TestAddProductToCart(FixtureTestData, APITestCase):
     def test_add_product_to_cart_user_is_authenticated(self):
         self.client.force_authenticate(self.user1)
         response = self.client.post(reverse(self.url), data={'product': self.product1.id, 'amount': 1})
-        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         cart = Cart.objects.all().first()
         cart_items = CartItem.objects.all().first()
@@ -107,4 +109,25 @@ class TestAddProductToCart(FixtureTestData, APITestCase):
         self.assertEqual(len(cart_items), 3)
         self.assertEqual(product1_item.amount, 2)
         self.assertEqual(product2_item.amount, 3)
+
+
+# class TestCartSummary(FixtureTestData, APITestCase):
+#
+#     def setUp(self) -> None:
+#         super().setUp()
+#         self.url = reverse('cart-summary')
+#
+#     def test_get_card_response_not_authenticated(self):
+#         response = self.client.get(self.url)
+#         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+#
+#     def test_get_cart_response_authenticated(self):
+#         self.client.force_authenticate(self.user1)
+#         response = self.client.get(self.url)
+#         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+
+
+
+
 
