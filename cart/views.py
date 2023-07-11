@@ -1,13 +1,12 @@
 import uuid
 
 from rest_framework import status
-from rest_framework.generics import CreateAPIView, ListAPIView
+from rest_framework.generics import CreateAPIView, ListAPIView, DestroyAPIView
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from cart.models import Cart, CartItem
-from cart.serializers import AddItemToCartSerializer, CartSummarySerializer
-
-session = {'user_session': 'some_key'}
+from cart.serializers import AddItemToCartSerializer, CartSummarySerializer, DeleteItemFromCartSerializer
 
 
 class CartAddAPIView(CreateAPIView):
@@ -47,11 +46,21 @@ class CartSummaryAPIView(ListAPIView):
     queryset = Cart.objects.all()
     serializer_class = CartSummarySerializer
 
-    def get_serializer_context(self):
-        context = super().get_serializer_context()
-        context['request'] = self.request
-        return context
 
+class DeleteCartItemAPIView(APIView):
 
+    def delete(self, request, *args, **kwargs):
+        serializer = DeleteItemFromCartSerializer(data=request.data)
+        if serializer.is_valid():
+            product_id = serializer.data.get('product')
+            user_session = request.session.get('user_session')
 
+            if request.user.is_authenticated:
+                cart = Cart.objects.get(session_id=user_session, owner=request.user)
+            else:
+                cart = Cart.objects.get(session_id=user_session)
 
+            item_to_del = CartItem.objects.get(cart=cart, product_id=product_id)
+            item_to_del.delete()
+            return Response(data={"message": "successfully deleted"}, status=status.HTTP_204_NO_CONTENT)
+        return Response(data=serializer.errors, status=status.HTTP_200_OK)

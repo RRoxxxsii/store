@@ -51,3 +51,12 @@ class CartSummarySerializer(serializers.ModelSerializer):
             )
         ).get('total_price_with_discount')
         return price_with_discount or 0
+
+
+class DeleteItemFromCartSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = CartItem
+        fields = ('product',)
+
+

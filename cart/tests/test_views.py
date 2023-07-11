@@ -134,7 +134,7 @@ class TestDeleteItemFromCart(FixtureTestCartData, APITestCase):
 
         # Obtaining session key for product cart
         self.client.post(reverse('add-to-cart'), data={'product': self.product1.id, 'amount': 1})
-        session_key = Cart.objects.get(self.client.session['user_session'])
+        session_key = self.client.session['user_session']
         self.cart = Cart.objects.get(session_id=session_key)
 
     def test_delete_request(self):
