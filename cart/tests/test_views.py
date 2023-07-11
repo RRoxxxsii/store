@@ -1,11 +1,9 @@
-import uuid
-
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
 from cart.models import Cart, CartItem
-from store.tests.fixtures import FixtureTestData
+from store.tests.fixtures import FixtureTestData, FixtureTestCartData
 
 
 class TestAddProductToCart(FixtureTestData, APITestCase):
@@ -125,6 +123,27 @@ class TestCartSummary(FixtureTestData, APITestCase):
         self.client.force_authenticate(self.user1)
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+
+class TestDeleteItemFromCart(FixtureTestCartData, APITestCase):
+
+    def setUp(self) -> None:
+        super().setUp()
+
+        self.url = reverse('cart-item-delete')
+
+        # Obtaining session key for product cart
+        self.client.post(reverse('add-to-cart'), data={'product': self.product1.id, 'amount': 1})
+        session_key = Cart.objects.get(self.client.session['user_session'])
+        self.cart = Cart.objects.get(session_id=session_key)
+
+    def test_delete_request(self):
+        response = self.client.delete(self.url, data={'product': self.product1.id})
+
+        cart_objects = self.cart.items.all()
+        self.assertEqual(len(cart_objects), 0)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
 
 
 
