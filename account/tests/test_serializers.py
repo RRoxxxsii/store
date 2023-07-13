@@ -2,6 +2,7 @@ from collections import OrderedDict
 
 from rest_framework.exceptions import ErrorDetail
 from rest_framework.test import APITestCase
+
 from account.serializers import RegisterSerializer
 
 

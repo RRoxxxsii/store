@@ -1,10 +1,9 @@
 from uuid import uuid4
 
 from django.contrib.auth.base_user import BaseUserManager
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.core.validators import RegexValidator
 from django.db import models
-
-from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 
 
 class CustomAccountManager(BaseUserManager):

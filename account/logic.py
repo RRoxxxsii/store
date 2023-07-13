@@ -4,7 +4,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from account.models import Customer, EmailConfirmationToken, CustomerProfile
+from account.models import Customer, CustomerProfile, EmailConfirmationToken
 from account.utils import send_confirmation_email
 
 

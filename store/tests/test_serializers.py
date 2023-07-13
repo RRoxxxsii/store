@@ -1,10 +1,11 @@
 import json
 
-from rest_framework.test import APITestCase
 from django.test import RequestFactory
+from rest_framework.test import APITestCase
 
 from store.models import Category
-from store.serializers import ProductListSerializer, ProductDetailSerializer, CategoryListSerializer
+from store.serializers import (CategoryListSerializer, ProductDetailSerializer,
+                               ProductListSerializer)
 
 from .fixtures import FixtureTestData
 

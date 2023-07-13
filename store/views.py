@@ -1,13 +1,14 @@
 from django.shortcuts import get_object_or_404
-from rest_framework import status, filters
+from rest_framework import filters, status
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ReadOnlyModelViewSet
 
 from store.filters import ProductPriceFilterBackend
-from store.models import Product, Category
-from store.serializers import ProductListSerializer, ProductDetailSerializer, CategoryListSerializer
+from store.models import Category, Product
+from store.serializers import (CategoryListSerializer, ProductDetailSerializer,
+                               ProductListSerializer)
 from store.utils import ProductBaseMixin
 
 

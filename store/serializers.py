@@ -1,6 +1,7 @@
 from django.urls import reverse
 from rest_framework import serializers
-from store.models import Product, ProductImage, Category
+
+from store.models import Category, Product, ProductImage
 
 
 class ProductImageSerializer(serializers.ModelSerializer):

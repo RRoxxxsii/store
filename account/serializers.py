@@ -1,7 +1,7 @@
-from rest_framework.exceptions import ValidationError
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 
-from .models import CustomerProfile, Customer
+from .models import Customer, CustomerProfile
 from .validators import password_validate
 
 

@@ -1,4 +1,4 @@
-from store.serializers import ProductListSerializer, ProductDetailSerializer
+from store.serializers import ProductDetailSerializer, ProductListSerializer
 
 
 class ProductBaseMixin:

@@ -1,12 +1,12 @@
 import re
 
+from django.core import mail
 from django.core.exceptions import ObjectDoesNotExist
+from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
 from account.models import Customer, CustomerProfile
-from django.urls import reverse
-from django.core import mail
 
 
 class TestUserCreateAccountAPIView(APITestCase):

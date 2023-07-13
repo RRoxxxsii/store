@@ -15,6 +15,11 @@ class Cart(models.Model):
     session_id = models.CharField(max_length=100)
     completed = models.BooleanField(default=False, verbose_name='Заполнено')
 
+    class Meta:
+        verbose_name = 'Корзина'
+        verbose_name_plural = 'Корзины'
+        ordering = ('-created',)
+
     def __str__(self):
         return f'ID: {self.id}, Владелец: {self.owner}'
 
@@ -25,6 +30,9 @@ class CartItem(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, blank=True, null=True, related_name='cartitems',
                                 verbose_name='Товар')
     amount = models.PositiveSmallIntegerField(default=0, verbose_name='Количество')
+
+    class Meta:
+        verbose_name = verbose_name_plural = 'Товары в корзине'
 
     def __str__(self):
         return f'Корзина: {self.cart}, товар: {self.product}'

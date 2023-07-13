@@ -1,16 +1,25 @@
-from django.db.models import Subquery, Sum, F
+from django.db.models import F, Subquery, Sum
 from rest_framework import serializers
 
-from cart.models import CartItem, Cart
+from cart.models import Cart, CartItem
 from store.models import Product
 from store.serializers import ProductListSerializer
 
 
-class AddItemToCartSerializer(serializers.ModelSerializer):
+class AddItemToCart(serializers.ModelSerializer):
+
+    ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN = (number for number in range(1, 11))
+    CHOICES = (
+                (ONE, 1), (TWO, 2), (THREE, 3), (FOUR, 4), (FIVE, 5),
+                (SIX, 6), (SEVEN, 7), (EIGHT, 8), (NINE, 9), (TEN, 10)
+              )
+
+    amount = serializers.ChoiceField(choices=CHOICES)
+    product_id = serializers.IntegerField(source='id', required=True)
 
     class Meta:
         model = CartItem
-        fields = ('product', 'amount')
+        fields = ('product_id', 'amount')
 
 
 class CartSummarySerializer(serializers.ModelSerializer):
@@ -54,9 +63,27 @@ class CartSummarySerializer(serializers.ModelSerializer):
 
 
 class DeleteItemFromCartSerializer(serializers.ModelSerializer):
+    cart_item_id = serializers.IntegerField(source='id')
 
     class Meta:
         model = CartItem
-        fields = ('product',)
+        fields = ('cart_item_id',)
+
+
+
+class UpdateCartItem(serializers.ModelSerializer):
+
+    ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN = (number for number in range(1, 11))
+    CHOICES = (
+                (ONE, 1), (TWO, 2), (THREE, 3), (FOUR, 4), (FIVE, 5),
+                (SIX, 6), (SEVEN, 7), (EIGHT, 8), (NINE, 9), (TEN, 10)
+              )
+
+    amount = serializers.ChoiceField(choices=CHOICES)
+    cart_item_id = serializers.IntegerField(source='id', required=True)
+
+    class Meta:
+        model = CartItem
+        fields = ('cart_item_id', 'amount')
 
 

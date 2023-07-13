@@ -1,9 +1,10 @@
 import json
 
+from django.test import RequestFactory
+from rest_framework.test import APITestCase
+
 from cart.serializers import CartSummarySerializer
 from store.tests.fixtures import FixtureTestCartData
-from rest_framework.test import APITestCase
-from django.test import RequestFactory
 
 
 class TestCartSummarySerializer(FixtureTestCartData, APITestCase):

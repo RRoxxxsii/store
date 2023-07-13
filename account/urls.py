@@ -1,10 +1,8 @@
-from django.urls import path
 from django.contrib.auth import views as auth_views
-
+from django.urls import path
 from rest_framework.authtoken.views import obtain_auth_token
 
 from . import views
-
 
 urlpatterns = [
     path('register/', views.RegistrationAPIVIew.as_view(), name='register'),

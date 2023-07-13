@@ -1,14 +1,17 @@
 from rest_framework import status
 from rest_framework.authtoken.models import Token
-from rest_framework.generics import CreateAPIView, RetrieveUpdateAPIView, UpdateAPIView
+from rest_framework.generics import (CreateAPIView, RetrieveUpdateAPIView,
+                                     UpdateAPIView)
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from account.logic import UpdateEmail, Register, EmailConfirmationView, UpdateUserName, ConfirmEmailChangeMixin
+from account.logic import (ConfirmEmailChangeMixin, EmailConfirmationView,
+                           Register, UpdateEmail, UpdateUserName)
 from account.permissions import IsNotAuthenticated
-from account.serializers import RegisterSerializer, PersonalProfileSerializer, ChangeEmailSerializer, \
-    ChangeUserNameSerializer
+from account.serializers import (ChangeEmailSerializer,
+                                 ChangeUserNameSerializer,
+                                 PersonalProfileSerializer, RegisterSerializer)
 from account.utils import ChangeFieldAPIViewMixin
 
 

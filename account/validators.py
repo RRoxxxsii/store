@@ -1,6 +1,5 @@
 from rest_framework.exceptions import ValidationError
 
-
 specialCharacters = set('?&%$#@!*')
 
 

@@ -3,7 +3,7 @@ import uuid
 from account.models import Customer
 from cart.models import Cart, CartItem
 from reviews.models import ProductReview
-from store.models import Product, Brand, Category, Vendor, ProductImage
+from store.models import Brand, Category, Product, ProductImage, Vendor
 
 
 class FixtureTestData:

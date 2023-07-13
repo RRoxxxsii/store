@@ -77,20 +77,20 @@ class Product(models.Model):
     created = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
     updated = models.DateTimeField(auto_now=True, verbose_name='Дата обновления')
 
-    def get_price_with_discount(self):
-        return int(self.price - self.price / 100 * self.discount_percent) if self.discount_percent > 0 else self.price
-
-    def __str__(self):
-        return f'{self.product_name} - {self.price} руб.'
-
     class Meta:
         verbose_name = 'Товар'
         verbose_name_plural = 'Товары'
         ordering = ['product_name', ]
 
+    def __str__(self):
+        return f'{self.product_name} - {self.price} руб.'
+
     def save(self, *args, **kwargs):
         self.product_name = self.product_name.capitalize()
         super(Product, self).save(*args, **kwargs)
+
+    def get_price_with_discount(self):
+        return int(self.price - self.price / 100 * self.discount_percent) if self.discount_percent > 0 else self.price
 
 
 class ProductImage(models.Model):
