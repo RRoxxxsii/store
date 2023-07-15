@@ -186,7 +186,7 @@ class TestDeleteItemFromCart(FixtureTestCartData, APITestCase):
         self.client.force_authenticate(self.user1)
         try:
             response = self.client.delete(self.url, data={'cart_item_id': self.cart_item.id,
-                                                       'amount': UpdateCartItem.THREE})
+                                                          'amount': UpdateCartItem.THREE})
         except Cart.DoesNotExist:
             assert True
         else:
@@ -223,5 +223,11 @@ class TestCartUpdate(FixtureTestCartData, APITestCase):
             assert True
         else:
             assert False
+
+    def test_update_item_that_does_not_exist(self):
+        response = self.client.put(self.url, data={'cart_item_id': 50,
+                                                   'amount': UpdateCartItem.THREE})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
 
 

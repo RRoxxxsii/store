@@ -8,7 +8,13 @@ from rest_framework.views import APIView
 from cart.models import Cart, CartItem
 from cart.serializers import (AddItemToCart, CartSummarySerializer,
                               DeleteItemFromCartSerializer, UpdateCartItem)
+from cart.utils import AddItemToCartHelper, DeleteItemFromCartHelper, UpdateItemFromCartHelper
 from store.models import Product
+
+
+class CartSummaryAPIView(ListAPIView):
+    queryset = Cart.objects.all()
+    serializer_class = CartSummarySerializer
 
 
 class CartAddAPIView(APIView):
@@ -22,34 +28,17 @@ class CartAddAPIView(APIView):
             if not user_session:
                 request.session['user_session'] = session_id
 
-            if request.user.is_authenticated:
-                cart, created = Cart.objects.get_or_create(owner=request.user, session_id=session_id)
-            else:
-                cart, created = Cart.objects.get_or_create(session_id=session_id)
-
             product_id = serializer.data.get('product_id')
             amount = serializer.data.get('amount')
 
-            try:
-                Product.objects.get(id=product_id)
-            except Product.DoesNotExist as err:
-                return Response(data={'error': str(err)}, status=status.HTTP_400_BAD_REQUEST)
-
-            try:
-                product = CartItem.objects.get(product_id=product_id, cart=cart)
-                product.amount += amount
-                product.save()
-            except CartItem.DoesNotExist:
-                CartItem.objects.create(cart=cart, product_id=product_id, amount=amount)
+            cart_item_adder = AddItemToCartHelper(request=request, session_id=session_id, product_id=product_id)
+            cart = cart_item_adder.get_or_create_cart()
+            cart_item_adder.get_product_or_400_err()
+            cart_item_adder.get_or_create_cart_item(amount=amount, cart=cart)
 
             return Response(data=serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class CartSummaryAPIView(ListAPIView):
-    queryset = Cart.objects.all()
-    serializer_class = CartSummarySerializer
 
 
 class DeleteCartItemAPIView(APIView):
@@ -58,20 +47,15 @@ class DeleteCartItemAPIView(APIView):
         serializer = DeleteItemFromCartSerializer(data=request.data)
         if serializer.is_valid():
             cart_item_id = serializer.data.get('cart_item_id')
-            user_session = request.session.get('user_session')
+            session_id = request.session.get('user_session')
 
-            try:
-                CartItem.objects.get(id=cart_item_id)
-            except CartItem.DoesNotExist as err:
-                return Response(data={'error': str(err)}, status=status.HTTP_400_BAD_REQUEST)
-
-            if request.user.is_authenticated:
-                cart = Cart.objects.get(session_id=user_session, owner=request.user)
-            else:
-                cart = Cart.objects.get(session_id=user_session)
-
+            cart_item_deleter = DeleteItemFromCartHelper(request=request, session_id=session_id,
+                                                         cart_item_id=cart_item_id)
+            cart_item_deleter.get_cart_item_or_400_err()
+            cart = cart_item_deleter.get_cart()
             item_to_del = CartItem.objects.get(cart=cart, id=cart_item_id)
             item_to_del.delete()
+
             return Response(data={"message": "successfully deleted"}, status=status.HTTP_204_NO_CONTENT)
         return Response(data=serializer.errors, status=status.HTTP_200_OK)
 
@@ -87,12 +71,11 @@ class UpdateCartAPIView(APIView):
             cart_item_id = serializer.data.get('cart_item_id')
             amount = serializer.data.get('amount')
 
-            if request.user.is_authenticated:
-                cart = Cart.objects.get(owner=request.user, session_id=session_id)
-            else:
-                cart = Cart.objects.get(session_id=session_id)
+            cart_item_updater = UpdateItemFromCartHelper(request=request, session_id=session_id,
+                                                         cart_item_id=cart_item_id)
+            cart = cart_item_updater.get_cart()
+            item_to_update = cart_item_updater.update_cart_item_or_404(cart)
 
-            item_to_update = CartItem.objects.get(cart=cart, id=cart_item_id)
             item_to_update.amount = amount
             item_to_update.save()
             return Response(data={"message": "successfully updated"}, status=status.HTTP_200_OK)

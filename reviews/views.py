@@ -1,5 +1,4 @@
 from rest_framework import status
-from rest_framework.decorators import permission_classes
 from rest_framework.generics import ListAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
@@ -29,14 +28,14 @@ class ProductReviewListAPIView(ListAPIView):
 
 class ProductReviewPostAPIView(APIView):
     serializer_class = ProductReviewPostSerializer
-    permission_classes = [IsAuthenticated,]
+    permission_classes = [IsAuthenticated, ]
 
     def post(self, request, pk):
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
             try:
                 product = Product.objects.get(id=pk)
-                review = serializer.save(user=request.user, product=product)
+                serializer.save(user=request.user, product=product)
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             except Product.DoesNotExist:
                 return Response({"error": "Товара не существует."}, status=status.HTTP_404_NOT_FOUND)
@@ -52,7 +51,6 @@ class ProductReviewRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
             return [AllowAny()]
         else:
             return [IsAuthenticated(), IsOwner()]
-
 
 
 

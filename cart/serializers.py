@@ -6,8 +6,7 @@ from store.models import Product
 from store.serializers import ProductListSerializer
 
 
-class AddItemToCart(serializers.ModelSerializer):
-
+class CartAddUpdateSerializerMixin:
     ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN = (number for number in range(1, 11))
     CHOICES = (
                 (ONE, 1), (TWO, 2), (THREE, 3), (FOUR, 4), (FIVE, 5),
@@ -15,11 +14,32 @@ class AddItemToCart(serializers.ModelSerializer):
               )
 
     amount = serializers.ChoiceField(choices=CHOICES)
+
+
+class AddItemToCart(CartAddUpdateSerializerMixin, serializers.ModelSerializer):
+    amount = serializers.ChoiceField(choices=CartAddUpdateSerializerMixin.CHOICES)
     product_id = serializers.IntegerField(source='id', required=True)
 
     class Meta:
         model = CartItem
         fields = ('product_id', 'amount')
+
+
+class DeleteItemFromCartSerializer(serializers.ModelSerializer):
+    cart_item_id = serializers.IntegerField(source='id')
+
+    class Meta:
+        model = CartItem
+        fields = ('cart_item_id',)
+
+
+class UpdateCartItem(CartAddUpdateSerializerMixin, serializers.ModelSerializer):
+    amount = serializers.ChoiceField(choices=CartAddUpdateSerializerMixin.CHOICES)
+    cart_item_id = serializers.IntegerField(source='id', required=True)
+
+    class Meta:
+        model = CartItem
+        fields = ('cart_item_id', 'amount')
 
 
 class CartSummarySerializer(serializers.ModelSerializer):
@@ -61,29 +81,5 @@ class CartSummarySerializer(serializers.ModelSerializer):
         ).get('total_price_with_discount')
         return price_with_discount or 0
 
-
-class DeleteItemFromCartSerializer(serializers.ModelSerializer):
-    cart_item_id = serializers.IntegerField(source='id')
-
-    class Meta:
-        model = CartItem
-        fields = ('cart_item_id',)
-
-
-
-class UpdateCartItem(serializers.ModelSerializer):
-
-    ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN = (number for number in range(1, 11))
-    CHOICES = (
-                (ONE, 1), (TWO, 2), (THREE, 3), (FOUR, 4), (FIVE, 5),
-                (SIX, 6), (SEVEN, 7), (EIGHT, 8), (NINE, 9), (TEN, 10)
-              )
-
-    amount = serializers.ChoiceField(choices=CHOICES)
-    cart_item_id = serializers.IntegerField(source='id', required=True)
-
-    class Meta:
-        model = CartItem
-        fields = ('cart_item_id', 'amount')
 
 
