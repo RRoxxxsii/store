@@ -44,4 +44,3 @@ class ProductReview(models.Model):
         ordering = ['-created',]
 
 
-

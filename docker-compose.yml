@@ -1,4 +1,6 @@
 services:
+
+  # Django
   web:
     build: .
     volumes:
@@ -13,7 +15,46 @@ services:
     container_name: django_store_api
     command: python manage.py runserver 0.0.0.0:8000
 
+  # Redis
+  redis:
+    image: redis:7.0.5-alpine
+    container_name: redis
 
+  # Celery Worker
+  celery-worker:
+    restart: always
+    build:
+      context: .
+    entrypoint: celery
+    command: -A store.celery_store.app worker --loglevel=info
+    volumes:
+      - .:/store
+    container_name: celery
+    depends_on:
+      - db
+      - redis
+      - web
+
+
+  # Flower
+  flower:
+    build:
+      context: .
+    container_name: flower
+    command:  celery -A store.celery_store.app flower
+    links:
+      - redis
+    depends_on:
+      - redis
+      - web
+      - db
+    ports:
+      - '5555:5555'
+    volumes:
+      - .:/store
+
+
+  # PostgreSQL
   db:
     image: postgres:14.1-alpine
     restart: always

@@ -9,7 +9,6 @@ from cart.models import Cart, CartItem
 from cart.serializers import (AddItemToCart, CartSummarySerializer,
                               DeleteItemFromCartSerializer, UpdateCartItem)
 from cart.utils import AddItemToCartHelper, DeleteItemFromCartHelper, UpdateItemFromCartHelper
-from store.models import Product
 
 
 class CartSummaryAPIView(ListAPIView):

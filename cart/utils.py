@@ -1,9 +1,5 @@
 from django.core.exceptions import BadRequest
-from django.http import Http404
-from rest_framework import status
-from rest_framework.exceptions import bad_request
 from rest_framework.request import Request
-from rest_framework.response import Response
 
 from cart.models import Cart, CartItem
 from store.models import Product

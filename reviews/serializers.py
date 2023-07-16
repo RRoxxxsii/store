@@ -13,6 +13,7 @@ class ProductReviewSerializer(serializers.ModelSerializer):
 
 class ProductReviewPostSerializer(serializers.ModelSerializer):
 
+
     class Meta:
         model = ProductReview
         fields = ('rating', 'usage_period', 'advantages', 'disadvantages', 'comment')
