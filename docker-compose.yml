@@ -26,7 +26,7 @@ services:
     build:
       context: .
     entrypoint: celery
-    command: -A store.celery_store.app worker --loglevel=info
+    command: -A celery_app.app worker --loglevel=info
     volumes:
       - .:/store
     container_name: celery
@@ -41,7 +41,7 @@ services:
     build:
       context: .
     container_name: flower
-    command:  celery -A store.celery_store.app flower
+    command:  celery -A celery_app.app flower
     links:
       - redis
     depends_on:
