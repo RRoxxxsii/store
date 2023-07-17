@@ -8,7 +8,8 @@ from rest_framework.views import APIView
 from cart.models import Cart, CartItem
 from cart.serializers import (AddItemToCart, CartSummarySerializer,
                               DeleteItemFromCartSerializer, UpdateCartItem)
-from cart.utils import AddItemToCartHelper, DeleteItemFromCartHelper, UpdateItemFromCartHelper
+from cart.utils import (AddItemToCartHelper, DeleteItemFromCartHelper,
+                        UpdateItemFromCartHelper)
 
 
 class CartSummaryAPIView(ListAPIView):

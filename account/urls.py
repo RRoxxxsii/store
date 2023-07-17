@@ -16,6 +16,4 @@ urlpatterns = [
     # Change user_name
     path('change-username/', views.ChangeUserNameAPIView.as_view(), name='change_username_view'),
     path('confirm-change-username/', views.ConfirmEmailChangeUserNameView.as_view(), name='confirm-email-change-view'),
-    path('subscribe-on-email/', views.SubscribeOnMailListingAPIView.as_view(), name='mail_listing_subscribe')
-
 ]

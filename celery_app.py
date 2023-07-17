@@ -1,5 +1,4 @@
 import os
-import time
 
 from celery import Celery
 from django.conf import settings
@@ -11,9 +10,4 @@ app.config_from_object('django.conf:settings')
 app.conf.broker_url = settings.CELERY_BROKER_URL
 app.autodiscover_tasks()
 
-
-@app.task()
-def debug_task():
-    time.sleep(10)
-    print('Hello From Debug Task')
 

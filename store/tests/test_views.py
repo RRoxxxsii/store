@@ -1,9 +1,13 @@
 import json
 
+from django.core import mail
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
+from notifications.tests.fixtures import FixtureUsers
+
+from ..models import Product
 from .fixtures import FixtureTestData
 
 
@@ -146,5 +150,6 @@ class TestProductsWithDiscount(FixtureTestData, APITestCase):
         response = self.client.get(self.product_list_url)
         amount_of_products = len(eval(str(json.loads(response.content.decode()))))
         self.assertEqual(amount_of_products, 4)
+
 
 

@@ -70,6 +70,7 @@ class Product(models.Model):
     in_stock = models.BooleanField(default=False, verbose_name='В наличии')
     amount = models.IntegerField(verbose_name='Количество')
 
+    send_email_created = models.BooleanField(default=False)
     vendor = models.ForeignKey(Vendor, on_delete=models.CASCADE, verbose_name='Поставщик')
     category = models.ForeignKey(Category, on_delete=models.CASCADE, verbose_name='Категория')
     brand = models.ForeignKey(Brand, on_delete=models.CASCADE, verbose_name='Бренд')
@@ -86,10 +87,14 @@ class Product(models.Model):
         return f'{self.product_name} - {self.price} руб.'
 
     def save(self, *args, **kwargs):
+        from notifications.tasks import send_email_to_subs
         self.product_name = self.product_name.capitalize()
+
+        if self.send_email_created:
+            send_email_to_subs(product=self)
         super(Product, self).save(*args, **kwargs)
 
-    def get_price_with_discount(self):
+    def get_price_with_discount(self) -> int:
         return int(self.price - self.price / 100 * self.discount_percent) if self.discount_percent > 0 else self.price
 
 

@@ -51,7 +51,6 @@ class TestAddProductToCart(FixtureTestData, APITestCase):
 
     def test_add_product_that_does_not_exist(self):
         response = self.client.post(reverse(self.url), data={'product_id': 30})
-        print(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_get_session_key_user_is_not_authenticated(self):
         self.client.post(reverse(self.url), data={'product_id': self.product1.id,
