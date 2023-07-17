@@ -34,6 +34,10 @@ services:
       - db
       - redis
       - web
+    links:
+      - redis
+    env_file:
+      - web.env
 
 
   # Flower

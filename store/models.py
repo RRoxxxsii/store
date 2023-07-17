@@ -91,7 +91,12 @@ class Product(models.Model):
         self.product_name = self.product_name.capitalize()
 
         if self.send_email_created:
-            send_email_to_subs(product=self)
+            send_email_to_subs.delay(
+                discount_percent=self.discount_percent,
+                product_id=self.pk,
+                price_with_discount=self.get_price_with_discount()
+            )
+
         super(Product, self).save(*args, **kwargs)
 
     def get_price_with_discount(self) -> int:
