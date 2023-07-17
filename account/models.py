@@ -35,14 +35,16 @@ class CustomAccountManager(BaseUserManager):
 
 
 class Customer(AbstractBaseUser, PermissionsMixin):
-    email = models.EmailField(unique=True)
-    user_name = models.CharField(max_length=150, unique=True)
+    email = models.EmailField(unique=True, verbose_name='Эл. Почта')
+    user_name = models.CharField(max_length=150, unique=True, verbose_name='Имя пользователя')
     mobile = models.CharField(max_length=20, blank=True, null=True, unique=True,
-                              validators=[RegexValidator(r'^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,10}$')])
+                              validators=[RegexValidator(r'^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,10}$')],
+                              verbose_name='Номер телефона')
 
     # User Status
     is_active = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
+    on_mail_listing = models.BooleanField(default=False, verbose_name='Подписан на почтовую рассылку')
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
@@ -60,9 +62,11 @@ class Customer(AbstractBaseUser, PermissionsMixin):
 
 
 class CustomerProfile(models.Model):
-    customer = models.OneToOneField(Customer, on_delete=models.CASCADE, related_name='customer_profile')
-    city = models.CharField(max_length=250, default=None, null=True)
-    image_url = models.ImageField(upload_to='uploads/%Y/%m/%d/', null=True, blank=True, default='media/images.png')
+    customer = models.OneToOneField(Customer, on_delete=models.CASCADE, related_name='customer_profile',
+                                    verbose_name='Покупатель')
+    city = models.CharField(max_length=250, default=None, null=True, verbose_name='Город')
+    image_url = models.ImageField(upload_to='uploads/%Y/%m/%d/', null=True, blank=True, default='media/images.png',
+                                  verbose_name='Аватар')
 
     def __str__(self):
         return str(self.customer)

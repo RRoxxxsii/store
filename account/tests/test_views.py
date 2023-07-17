@@ -282,3 +282,40 @@ class TestChangingUserName(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         email_msg = mail.outbox
         self.assertEqual(email_msg, [])
+
+
+class TestSubscribeOnMailListing(APITestCase):
+
+    def setUp(self) -> None:
+        self.user1 = Customer.objects.create(user_name='testuser1', email='testuser1@gmail.com', password='somepswrd1',
+                                             mobile='88005553535')
+
+        self.user2 = Customer.objects.create(user_name='testuser2', email='testuser2@gmail.com',
+                                             password='somepswrd1', mobile='88005553536', on_mail_listing=True)
+
+        self.url = reverse('mail_listing_subscribe')
+
+    def test_subscribe_on_mail_listing_authenticated(self):
+        self.client.force_authenticate(self.user1)
+        response = self.client.put(self.url)
+        self.user1.refresh_from_db()
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(self.user1.on_mail_listing, True)
+
+    def test_unsubscribe_on_mail_listing_authenticated(self):
+        self.client.force_authenticate(self.user2)
+        response = self.client.put(self.url)
+        self.user1.refresh_from_db()
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(self.user1.on_mail_listing, False)
+
+
+    def test_subscribe_on_mail_listing_not_authenticated(self):
+        response = self.client.put(self.url)
+        self.user1.refresh_from_db()
+
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(self.user1.on_mail_listing, False)
+

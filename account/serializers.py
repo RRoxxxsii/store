@@ -43,3 +43,9 @@ class ChangeUserNameSerializer(serializers.Serializer):
     user_name = serializers.CharField(required=True)
 
 
+class SubscribeOnMailListingSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Customer
+        fields = ('on_mail_listing',)
+
