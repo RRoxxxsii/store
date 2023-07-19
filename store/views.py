@@ -7,15 +7,15 @@ from rest_framework.viewsets import ReadOnlyModelViewSet
 
 from store.filters import ProductPriceFilterBackend
 from store.models import Category, Product
-from store.serializers import (CategoryListSerializer, ProductDetailSerializer,
-                               ProductListSerializer)
-from store.utils import ProductBaseMixin
+from store.serializers import CategoryListSerializer, ProductListSerializer
+from store.utils import ProductAPIPagination, ProductBaseMixin
 
 
 class ProductAPIViewSet(ProductBaseMixin, ReadOnlyModelViewSet):
     queryset = Product.objects.all()
     filter_backends = [filters.OrderingFilter, ProductPriceFilterBackend]
     ordering_fields = ['price', 'product_name', 'created']
+    pagination_class = ProductAPIPagination
 
 
 class CategoryListAPIView(ListAPIView):
@@ -38,6 +38,7 @@ class ProductByCategoryAPIView(APIView):
         products = Product.objects.filter(category__slug=slug, category__is_parent_category=False)
         serializer = ProductListSerializer(products, many=True, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 
 class ProductsWithDiscountAPIVIewSet(ProductBaseMixin, ReadOnlyModelViewSet):
