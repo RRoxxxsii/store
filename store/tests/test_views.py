@@ -1,13 +1,9 @@
 import json
 
-from django.core import mail
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from notifications.tests.fixtures import FixtureUsers
-
-from ..models import Product
 from .fixtures import FixtureTestData
 
 
@@ -38,26 +34,27 @@ class TestProductListAPIViewFilter(FixtureTestData, APITestCase):
     def test_min_max_price(self):
         response = self.client.get('/api/v1/store/products/?min_price=100&max_price=10000')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        amount_of_products = len(eval(str(json.loads(response.content.decode()))))
-        self.assertEqual(amount_of_products, 2)
+        response_data = json.loads(response.content.decode())
+        self.assertEqual(len(response_data['results']), 2)
+
 
     def test_min_price(self):
         response = self.client.get('/api/v1/store/products/?min_price=49000')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        amount_of_products = len(eval(str(json.loads(response.content.decode()))))
-        self.assertEqual(amount_of_products, 3)
+        response_data = json.loads(response.content.decode())
+        self.assertEqual(len(response_data['results']), 3)
 
     def test_max_price(self):
         response = self.client.get('/api/v1/store/products/?max_price=20000')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        amount_of_products = len(eval(str(json.loads(response.content.decode()))))
-        self.assertEqual(amount_of_products, 2)
+        response_data = json.loads(response.content.decode())
+        self.assertEqual(len(response_data['results']), 2)
 
     def test_price_that_is_not_on_condition(self):
         response = self.client.get('/api/v1/store/products/?min_price=0&max_price=10')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        amount_of_products = len(eval(str(json.loads(response.content.decode()))))
-        self.assertEqual(amount_of_products, 0)
+        response_data = json.loads(response.content.decode())
+        self.assertEqual(len(response_data['results']), 0)
 
 
 class TestProductRetrieveAPIView(FixtureTestData, APITestCase):

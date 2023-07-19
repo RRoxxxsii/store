@@ -1,3 +1,4 @@
+from django.core.cache import cache
 from django.shortcuts import get_object_or_404
 from rest_framework import filters, status
 from rest_framework.generics import ListAPIView
@@ -16,6 +17,20 @@ class ProductAPIViewSet(ProductBaseMixin, ReadOnlyModelViewSet):
     filter_backends = [filters.OrderingFilter, ProductPriceFilterBackend]
     ordering_fields = ['price', 'product_name', 'created']
     pagination_class = ProductAPIPagination
+
+    def list(self, request, *args, **kwargs):
+        response = super().list(request, *args, **kwargs)
+        products_cache_name = 'products_cache'
+        products_cache = cache.get(products_cache_name)
+        if products_cache:
+            self.queryset = products_cache
+        else:
+            self.queryset = self.get_queryset()
+            cache.set(products_cache_name, self.queryset, 600)
+        return response
+
+
+
 
 
 class CategoryListAPIView(ListAPIView):

@@ -68,7 +68,7 @@ class Product(models.Model):
     discount_percent = models.PositiveIntegerField(default=0, verbose_name='Процент скидки')
 
     in_stock = models.BooleanField(default=False, verbose_name='В наличии')
-    amount = models.IntegerField(verbose_name='Количество')
+    amount = models.PositiveIntegerField(verbose_name='Количество')
 
     send_email_created = models.BooleanField(default=False)
     vendor = models.ForeignKey(Vendor, on_delete=models.CASCADE, verbose_name='Поставщик')
