@@ -18,16 +18,6 @@ class ProductAPIViewSet(ProductBaseMixin, ReadOnlyModelViewSet):
     ordering_fields = ['price', 'product_name', 'created']
     pagination_class = ProductAPIPagination
 
-    def list(self, request, *args, **kwargs):
-        response = super().list(request, *args, **kwargs)
-        products_cache_name = 'products_cache'
-        products_cache = cache.get(products_cache_name)
-        if products_cache:
-            self.queryset = products_cache
-        else:
-            self.queryset = self.get_queryset()
-            cache.set(products_cache_name, self.queryset, 600)
-        return response
 
 
 
